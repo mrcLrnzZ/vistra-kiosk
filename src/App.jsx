@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import LandingScreen from './screens/LandingScreen'
+import ModeSelectionScreen from './screens/ModeSelectionScreen'
 import HealthCheckScreen from './screens/HealthCheckScreen'
 import SummaryScreen from './screens/SummaryScreen'
 import FinalScreen from './screens/FinalScreen'
@@ -8,13 +9,14 @@ import GestureCamera from './components/GestureCamera'
 import { useRef } from 'react'
 
 function App() {
-  const [currentScreen, setCurrentScreen] = useState('landing') // 'landing', 'healthCheck', 'summary', 'final'
+  const [currentScreen, setCurrentScreen] = useState('landing') // 'landing', 'modeSelection', 'healthCheck', 'summary', 'final'
+  const [measurementMode, setMeasurementMode] = useState('manual') // 'auto' or 'manual'
   const [measurements, setMeasurements] = useState({})
   const [gestureStatus, setGestureStatus] = useState(null)
 
   const startCheck = () => {
     setMeasurements({})
-    setCurrentScreen('healthCheck')
+    setCurrentScreen('modeSelection')
   }
 
   const lastGestureTime = useRef(0);
@@ -31,6 +33,9 @@ function App() {
 
     if (currentScreen === 'landing') {
       // LandingScreen consumes its own events.
+      handled = true;
+    } else if (currentScreen === 'modeSelection') {
+      // ModeSelectionScreen consumes its own events.
       handled = true;
     } else if (currentScreen === 'healthCheck') {
       // HealthCheckScreen consumes its own events. App.jsx fallback:
@@ -65,12 +70,24 @@ function App() {
           <LandingScreen onStart={startCheck} gestureStatus={gestureStatus} lastGesture={lastGesture} />
         )}
 
+        {currentScreen === 'modeSelection' && (
+          <ModeSelectionScreen
+            onSelectMode={(mode) => {
+              setMeasurementMode(mode);
+              setCurrentScreen('healthCheck');
+            }}
+            onBack={() => setCurrentScreen('landing')}
+            lastGesture={lastGesture}
+          />
+        )}
+
         {currentScreen === 'healthCheck' && (
           <HealthCheckScreen
+            mode={measurementMode}
             measurements={measurements}
             setMeasurements={setMeasurements}
             onComplete={() => setCurrentScreen('summary')}
-            onBack={() => setCurrentScreen('landing')}
+            onBack={() => setCurrentScreen('modeSelection')}
             lastGesture={lastGesture}
           />
         )}

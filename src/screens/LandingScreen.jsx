@@ -22,7 +22,7 @@ function GestureRow({ icon, name, action, delay, show }) {
 export default function LandingScreen({ onStart, gestureStatus, lastGesture }) {
   const [showInstructions, setShowInstructions] = useState(false);
   const [hasAcknowledged, setHasAcknowledged] = useState(false);
-  const lastProcessedGesture = useRef(0);
+  const lastProcessedGesture = useRef(lastGesture?.timestamp || 0);
 
   useEffect(() => {
     if (gestureStatus?.hand === 'Detected') {
