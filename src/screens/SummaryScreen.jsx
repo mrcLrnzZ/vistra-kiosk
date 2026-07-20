@@ -2,13 +2,13 @@ import React from 'react';
 import { Ruler, Weight, Thermometer, Activity, Wind, HeartPulse } from 'lucide-react';
 
 export default function SummaryScreen({ measurements, onNext }) {
-  
+
   // Helpers
   const parseNum = (str) => parseFloat((str || '').replace(/[^\d.]/g, ''));
-  
+
   const heightVal = parseNum(measurements.height);
   const weightVal = parseNum(measurements.weight);
-  
+
   let bmi = 0;
   let bmiCategory = '';
   let bmiColor = '';
@@ -16,7 +16,7 @@ export default function SummaryScreen({ measurements, onNext }) {
   if (heightVal && weightVal) {
     const heightM = heightVal / 100;
     bmi = weightVal / (heightM * heightM);
-    
+
     if (bmi < 18.5) {
       bmiCategory = 'Underweight';
       bmiColor = 'text-yellow-600';
@@ -36,7 +36,7 @@ export default function SummaryScreen({ measurements, onNext }) {
   const getRecommendation = () => {
     const temp = parseNum(measurements.temperature);
     const sysBP = parseNum(measurements.bloodPressure.split('/')[0]);
-    
+
     if (temp > 37.5) {
       return { text: "Your temperature is elevated. Please consult the clinic nurse.", type: 'warning' };
     }
@@ -69,7 +69,7 @@ export default function SummaryScreen({ measurements, onNext }) {
   return (
     <div className="flex flex-col w-full h-full bg-slate-50 p-8">
       <h2 className="text-4xl font-bold text-slate-800 mb-8 text-center">Health Summary</h2>
-      
+
       <div className="flex-1 flex gap-8 max-w-7xl mx-auto w-full">
         {/* Left Col: Measurements */}
         <div className="flex-2 grid grid-cols-2 gap-4 w-2/3">
@@ -108,7 +108,7 @@ export default function SummaryScreen({ measurements, onNext }) {
       </div>
 
       <div className="mt-8 flex justify-center">
-        <button 
+        <button
           onClick={onNext}
           className="px-12 py-5 bg-teal-600 hover:bg-teal-500 text-white text-2xl font-bold rounded-full shadow-xl shadow-teal-600/20 transition-transform transform hover:scale-105"
         >

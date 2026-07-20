@@ -16,7 +16,7 @@ export default function HealthCheckScreen({ measurements, setMeasurements, onCom
   const [readingState, setReadingState] = useState('idle'); // idle, preparing, scanning, processing, done
   const [selectedIndex, setSelectedIndex] = useState(0);
   const lastProcessedTime = useRef(0);
-  
+
   const completedCount = SENSORS.filter(s => measurements[s.id] !== undefined).length;
   const allCompleted = completedCount === SENSORS.length;
 
@@ -25,7 +25,7 @@ export default function HealthCheckScreen({ measurements, setMeasurements, onCom
     lastProcessedTime.current = lastGesture.timestamp;
 
     const gesture = lastGesture.name;
-    
+
     // Ignore navigation gestures if modal is open
     if (activeSensor) {
       if (gesture === 'Back') {
@@ -37,29 +37,29 @@ export default function HealthCheckScreen({ measurements, setMeasurements, onCom
     }
 
     if (gesture === 'Next') {
-       setSelectedIndex(prev => (prev + 1) % SENSORS.length);
+      setSelectedIndex(prev => (prev + 1) % SENSORS.length);
     } else if (gesture === 'Previous') {
-       setSelectedIndex(prev => (prev - 1 + SENSORS.length) % SENSORS.length);
+      setSelectedIndex(prev => (prev - 1 + SENSORS.length) % SENSORS.length);
     } else if (gesture === 'Select') {
-       if (!allCompleted) {
-         handleMeasureClick(SENSORS[selectedIndex]);
-       }
+      if (!allCompleted) {
+        handleMeasureClick(SENSORS[selectedIndex]);
+      }
     } else if (gesture === 'Continue') {
-       if (allCompleted) {
-         onComplete();
-       }
+      if (allCompleted) {
+        onComplete();
+      }
     } else if (gesture === 'Back') {
-       onBack();
+      onBack();
     }
   }, [lastGesture, activeSensor, readingState, selectedIndex, allCompleted, onComplete, onBack]);
 
   const handleMeasureClick = (sensor) => {
     setActiveSensor(sensor);
     setReadingState('preparing');
-    
+
     setTimeout(() => setReadingState('scanning'), 1000);
     setTimeout(() => setReadingState('processing'), 2000);
-    
+
     setTimeout(() => {
       setReadingState('done');
       const val = generateRandomValue(sensor.id);
@@ -68,13 +68,13 @@ export default function HealthCheckScreen({ measurements, setMeasurements, onCom
   };
 
   const generateRandomValue = (id) => {
-    switch(id) {
+    switch (id) {
       case 'height': return (150 + Math.random() * 40).toFixed(1) + ' cm';
       case 'weight': return (50 + Math.random() * 40).toFixed(1) + ' kg';
       case 'temperature': return (36.1 + Math.random() * 1.5).toFixed(1) + ' °C';
       case 'heartRate': return Math.floor(60 + Math.random() * 40) + ' BPM';
       case 'bloodOxygen': return Math.floor(95 + Math.random() * 5) + '%';
-      case 'bloodPressure': return `${Math.floor(110 + Math.random()*20)} / ${Math.floor(70 + Math.random()*15)} mmHg`;
+      case 'bloodPressure': return `${Math.floor(110 + Math.random() * 20)} / ${Math.floor(70 + Math.random() * 15)} mmHg`;
       default: return 'N/A';
     }
   };
@@ -97,22 +97,22 @@ export default function HealthCheckScreen({ measurements, setMeasurements, onCom
             disabled={!allCompleted}
             className={clsx(
               "px-8 py-4 text-2xl font-bold rounded-2xl shadow-lg transition-all",
-              allCompleted 
-                ? "bg-teal-600 hover:bg-teal-500 text-white transform hover:scale-105 animate-[pulse_2s_infinite]" 
+              allCompleted
+                ? "bg-teal-600 hover:bg-teal-500 text-white transform hover:scale-105 animate-[pulse_2s_infinite]"
                 : "bg-slate-200 text-slate-400 cursor-not-allowed"
             )}
           >
             View Health Summary
           </button>
         </div>
-        
+
         <div className="w-full">
           <div className="flex justify-between items-end mb-2">
             <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">Overall Progress</span>
             <span className="text-teal-600 font-bold text-lg">{completedCount} / 6 Measurements Completed</span>
           </div>
           <div className="bg-slate-200 h-3 rounded-full overflow-hidden w-full shadow-inner">
-            <div className="bg-teal-500 h-full transition-all duration-700 ease-out" style={{ width: `${(completedCount/6)*100}%` }}></div>
+            <div className="bg-teal-500 h-full transition-all duration-700 ease-out" style={{ width: `${(completedCount / 6) * 100}%` }}></div>
           </div>
         </div>
       </div>
@@ -122,18 +122,18 @@ export default function HealthCheckScreen({ measurements, setMeasurements, onCom
           const Icon = sensor.icon;
           const isCompleted = measurements[sensor.id] !== undefined;
           const isSelected = index === selectedIndex;
-          
+
           return (
-            <div 
-              key={sensor.id} 
+            <div
+              key={sensor.id}
               onClick={() => {
                 setSelectedIndex(index);
                 handleMeasureClick(sensor);
               }}
               className={clsx(
                 "relative rounded-3xl p-8 flex flex-col items-center text-center justify-between transition-all duration-300 ease-out cursor-pointer",
-                isSelected 
-                  ? "bg-white ring-4 ring-blue-500 shadow-[0_15px_40px_-10px_rgba(59,130,246,0.6)] scale-105 z-10" 
+                isSelected
+                  ? "bg-white ring-4 ring-blue-500 shadow-[0_15px_40px_-10px_rgba(59,130,246,0.6)] scale-105 z-10"
                   : "bg-white/70 border border-slate-200 opacity-60 scale-100 hover:opacity-80"
               )}
             >
@@ -142,13 +142,13 @@ export default function HealthCheckScreen({ measurements, setMeasurements, onCom
                   Selected
                 </div>
               )}
-              
+
               <div className={clsx("w-24 h-24 rounded-full flex items-center justify-center mb-6", sensor.bg)}>
                 <Icon className={clsx("w-12 h-12", sensor.color)} />
               </div>
               <h3 className="text-2xl font-bold text-slate-700 mb-2">{sensor.label}</h3>
               <p className="text-slate-500 flex-1">{sensor.description}</p>
-              
+
               {isCompleted ? (
                 <div className="mt-6 flex flex-col items-center w-full">
                   <div className="text-3xl font-extrabold text-teal-600 mb-2">{measurements[sensor.id]}</div>
@@ -157,7 +157,7 @@ export default function HealthCheckScreen({ measurements, setMeasurements, onCom
                   </div>
                 </div>
               ) : (
-                <div 
+                <div
                   className={clsx(
                     "mt-6 w-full py-4 font-semibold text-lg rounded-xl transition-colors",
                     isSelected ? "bg-blue-500 text-white shadow-md" : "bg-slate-100 text-slate-500"
@@ -190,7 +190,7 @@ export default function HealthCheckScreen({ measurements, setMeasurements, onCom
             </div>
 
             <h3 className="text-4xl font-bold text-slate-800 mb-4">{activeSensor.label}</h3>
-            
+
             <div className="h-24 flex items-center justify-center">
               {readingState === 'done' ? (
                 <div className="text-5xl font-extrabold text-teal-600">
@@ -207,7 +207,7 @@ export default function HealthCheckScreen({ measurements, setMeasurements, onCom
 
             {readingState === 'done' && (
               <div className="mt-8 flex flex-col items-center">
-                <button 
+                <button
                   onClick={closeModal}
                   className="px-12 py-4 bg-teal-600 hover:bg-teal-500 text-white font-bold text-xl rounded-full shadow-lg transition-colors mb-4"
                 >

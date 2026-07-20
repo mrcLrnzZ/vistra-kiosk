@@ -22,16 +22,15 @@ function App() {
 
   const handleGesture = (gesture) => {
     const now = Date.now();
-    
+
     // Minimal debounce at App level, as GestureCamera now handles cooldowns natively
-    if (now - lastGestureTime.current < 200) return; 
+    if (now - lastGestureTime.current < 200) return;
 
     let handled = false;
     setLastGesture({ name: gesture, timestamp: now });
 
-    if (currentScreen === 'landing' && (gesture === 'Select' || gesture === 'Continue')) {
-      setMeasurements({});
-      setCurrentScreen('healthCheck');
+    if (currentScreen === 'landing') {
+      // LandingScreen consumes its own events.
       handled = true;
     } else if (currentScreen === 'healthCheck') {
       // HealthCheckScreen consumes its own events. App.jsx fallback:
@@ -60,32 +59,32 @@ function App() {
     <div className="w-screen h-screen overflow-hidden font-sans bg-slate-900 text-slate-900 select-none">
       <GestureIndicator status={gestureStatus} />
       <GestureCamera onGesture={handleGesture} onStatusChange={setGestureStatus} />
-      
+
       <main className="w-full h-full">
         {currentScreen === 'landing' && (
-          <LandingScreen onStart={startCheck} />
+          <LandingScreen onStart={startCheck} gestureStatus={gestureStatus} lastGesture={lastGesture} />
         )}
-        
+
         {currentScreen === 'healthCheck' && (
-          <HealthCheckScreen 
-            measurements={measurements} 
-            setMeasurements={setMeasurements} 
+          <HealthCheckScreen
+            measurements={measurements}
+            setMeasurements={setMeasurements}
             onComplete={() => setCurrentScreen('summary')}
             onBack={() => setCurrentScreen('landing')}
             lastGesture={lastGesture}
           />
         )}
-        
+
         {currentScreen === 'summary' && (
-          <SummaryScreen 
-            measurements={measurements} 
-            onNext={() => setCurrentScreen('final')} 
+          <SummaryScreen
+            measurements={measurements}
+            onNext={() => setCurrentScreen('final')}
           />
         )}
-        
+
         {currentScreen === 'final' && (
-          <FinalScreen 
-            onRestart={() => setCurrentScreen('landing')} 
+          <FinalScreen
+            onRestart={() => setCurrentScreen('landing')}
           />
         )}
       </main>
