@@ -78,13 +78,7 @@ export default function GestureIndicator({ status }) {
         </div>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] text-slate-400 flex flex-col space-y-1 font-medium">
-        <div><span className="text-slate-600 font-bold">⬅️ Move Left</span> → Prev</div>
-        <div><span className="text-slate-600 font-bold">➡️ Move Right</span> → Next</div>
-        <div><span className="text-slate-600 font-bold">👍 Thumbs Up</span> → Enter / Select</div>
-        <div><span className="text-slate-600 font-bold">☝️ Point Up</span> → Continue</div>
-        <div><span className="text-slate-600 font-bold">👎 Thumbs Down</span> → Exit / Back</div>
-      </div>
+
     </div>
   );
 }
