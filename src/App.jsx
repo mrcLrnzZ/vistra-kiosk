@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import LandingScreen from './screens/LandingScreen'
 import ModeSelectionScreen from './screens/ModeSelectionScreen'
 import HealthCheckScreen from './screens/HealthCheckScreen'
@@ -24,23 +24,23 @@ function App() {
     prevHandDetected.current = isDetected;
 
     // Only open on transition: hand was NOT detected, now IS detected
-    if (!tutorialCompleted && isDetected && !wasDetected && !showTutorial) {
+    if (!tutorialCompleted && isDetected && !wasDetected && !showTutorial && currentScreen === 'landing') {
       setShowTutorial(true);
     }
-  }, [gestureStatus?.hand, tutorialCompleted, showTutorial]);
+  }, [gestureStatus?.hand, tutorialCompleted, showTutorial, currentScreen]);
 
   // Skip / full completion — permanent, tutorial won't re-appear
-  const handleTutorialComplete = () => {
+  const handleTutorialComplete = useCallback(() => {
     setTutorialCompleted(true);
     setShowTutorial(false);
-  };
+  }, []);
 
   // Timeout — temporary, tutorial can re-appear when hand re-appears
-  const handleTutorialTimeout = () => {
+  const handleTutorialTimeout = useCallback(() => {
     setShowTutorial(false);
     // Reset prevHandDetected so the next hand appearance triggers re-open
     prevHandDetected.current = false;
-  };
+  }, []);
 
   // Reset tutorial for the next user:
   // When the tutorial has been completed/skipped AND the hand disappears for 5s
@@ -141,13 +141,14 @@ function App() {
     }
   };
 
+  const isTutorialActive = showTutorial && !tutorialCompleted;
+
   return (
     <div className="w-screen h-screen overflow-hidden font-sans bg-slate-900 text-slate-900 select-none">
-      <GestureIndicator status={gestureStatus} />
       <GestureCamera onGesture={handleGesture} onStatusChange={setGestureStatus} />
 
       {/* Progressive gesture tutorial */}
-      {showTutorial && !tutorialCompleted && (
+      {isTutorialActive && (
         <GestureTutorial
           lastGesture={tutorialGesture}
           onComplete={handleTutorialComplete}
@@ -155,9 +156,15 @@ function App() {
         />
       )}
 
+      <GestureIndicator status={gestureStatus} />
+      
       <main className="w-full h-full">
         {currentScreen === 'landing' && (
-          <LandingScreen onStart={startCheck} lastGesture={lastGesture} />
+          <LandingScreen 
+            onStart={startCheck} 
+            lastGesture={lastGesture} 
+            isTutorialActive={isTutorialActive} 
+          />
         )}
 
         {currentScreen === 'modeSelection' && (

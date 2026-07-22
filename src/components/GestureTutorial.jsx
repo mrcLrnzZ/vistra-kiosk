@@ -264,19 +264,23 @@ export default function GestureTutorial({ lastGesture, onComplete, onTimeout }) 
                 </p>
 
                 {/* Video container */}
-                <div className="relative rounded-2xl overflow-hidden tutorial-video-glow bg-slate-900">
+                <div 
+                  className="relative rounded-2xl overflow-hidden tutorial-video-glow bg-slate-50"
+                  style={{ transform: 'translateZ(0)', WebkitMaskImage: '-webkit-radial-gradient(white, black)' }}
+                >
                   <video
                     ref={videoRef}
-                    key={step.video}
                     src={step.video}
                     autoPlay
                     loop
                     muted
                     playsInline
-                    className="w-full aspect-video object-cover"
+                    className="w-full aspect-video object-cover transition-opacity duration-300"
+                    style={{ backgroundColor: 'transparent', outline: 'none', opacity: 0 }}
+                    onLoadedData={(e) => { e.target.style.opacity = 1; }}
                   />
                   {/* Subtle gradient overlay on video edges */}
-                  <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 pointer-events-none" />
+                  <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-black/5 pointer-events-none" />
                 </div>
 
                 {/* Waiting indicator */}

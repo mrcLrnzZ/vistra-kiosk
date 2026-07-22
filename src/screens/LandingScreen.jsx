@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Activity } from 'lucide-react';
 
-export default function LandingScreen({ onStart, lastGesture }) {
+export default function LandingScreen({ onStart, lastGesture, isTutorialActive }) {
   const lastProcessedGesture = useRef(lastGesture?.timestamp || 0);
 
   useEffect(() => {
@@ -18,10 +18,14 @@ export default function LandingScreen({ onStart, lastGesture }) {
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-slate-50 relative overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-      <div className="absolute top-[10%] right-[-5%] w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-      <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+      {/* Background decorations - completely removed when tutorial is active to fix GPU bug */}
+      {!isTutorialActive && (
+        <>
+          <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+          <div className="absolute top-[10%] right-[-5%] w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+          <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-emerald-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+        </>
+      )}
 
       <div className="z-10 flex flex-col items-center text-center space-y-8 max-w-3xl transition-all duration-700 opacity-100">
         <div className="bg-white p-8 rounded-full shadow-xl shadow-teal-100/50 mb-4 ring-1 ring-teal-50">
