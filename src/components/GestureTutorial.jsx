@@ -50,9 +50,11 @@ export default function GestureTutorial({ lastGesture, onComplete, onTimeout }) 
   const [stepStatus, setStepStatus] = useState('waiting'); // 'waiting' | 'success'
   const [isExiting, setIsExiting] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
   const [stepKey, setStepKey] = useState(0); // forces re-mount for animation
   const lastProcessedTimestamp = useRef(0);
   const videoRef = useRef(null);
+  const introTimerRef = useRef(null);
 
   // Inactivity countdown
   const [countdown, setCountdown] = useState(INACTIVITY_TIMEOUT_MS / 1000);
@@ -78,6 +80,7 @@ export default function GestureTutorial({ lastGesture, onComplete, onTimeout }) 
   const animateExit = useCallback((callback) => {
     if (isClosingRef.current) return;
     isClosingRef.current = true;
+    if (introTimerRef.current) clearTimeout(introTimerRef.current);
     clearInactivityTimers();
     setIsExiting(true);
     setTimeout(() => {
@@ -88,8 +91,8 @@ export default function GestureTutorial({ lastGesture, onComplete, onTimeout }) 
   const startInactivityTimer = useCallback(() => {
     clearInactivityTimers();
 
-    // Don't start a new timer if we're already closing / completed
-    if (isClosingRef.current) return;
+    // Don't start a new timer if we're already closing / completed / intro is active
+    if (isClosingRef.current || showIntro) return;
 
     setCountdown(INACTIVITY_TIMEOUT_MS / 1000);
     setCountdownKey((k) => k + 1); // restart CSS bar animation
@@ -107,13 +110,29 @@ export default function GestureTutorial({ lastGesture, onComplete, onTimeout }) 
       clearInactivityTimers();
       animateExit(onTimeout);
     }, INACTIVITY_TIMEOUT_MS);
-  }, [clearInactivityTimers, animateExit, onTimeout]);
+  }, [clearInactivityTimers, animateExit, onTimeout, showIntro]);
 
-  // Start inactivity timer on mount
+  // Intro timer
   useEffect(() => {
-    startInactivityTimer();
+    if (showIntro) {
+      introTimerRef.current = setTimeout(() => {
+        if (!isClosingRef.current) {
+          setShowIntro(false);
+        }
+      }, 3000);
+    }
+    return () => {
+      if (introTimerRef.current) clearTimeout(introTimerRef.current);
+    };
+  }, [showIntro]);
+
+  // Start inactivity timer when intro finishes
+  useEffect(() => {
+    if (!showIntro) {
+      startInactivityTimer();
+    }
     return clearInactivityTimers;
-  }, [startInactivityTimer, clearInactivityTimers]);
+  }, [showIntro, startInactivityTimer, clearInactivityTimers]);
 
   // ---------- Close / Skip ----------
 
@@ -128,7 +147,11 @@ export default function GestureTutorial({ lastGesture, onComplete, onTimeout }) 
     if (!lastGesture || isClosingRef.current || isCompleted) return;
     if (lastGesture.timestamp <= lastProcessedTimestamp.current) return;
 
+    // Always mark the gesture as processed to prevent queuing
     lastProcessedTimestamp.current = lastGesture.timestamp;
+
+    // Ignore gestures if the introduction is still playing
+    if (showIntro) return;
 
     // Any recognised gesture resets the inactivity timer
     startInactivityTimer();
@@ -198,8 +221,23 @@ export default function GestureTutorial({ lastGesture, onComplete, onTimeout }) 
         {/* Main card */}
         <div className="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20">
 
-          {/* Inactivity countdown bar — thin strip at top of card */}
-          {stepStatus === 'waiting' && !isCompleted && (
+          {showIntro ? (
+            <div className="flex flex-col items-center justify-center py-24 px-10 text-center tutorial-step-enter min-h-[480px]">
+              <h2 className="text-4xl font-extrabold text-teal-600 tracking-tight mb-4">
+                Gesture Navigation Tutorial
+              </h2>
+              <p className="text-xl text-slate-600 mb-12 max-w-md mx-auto leading-relaxed">
+                Follow the hand gestures shown on screen to learn how to navigate the kiosk.
+              </p>
+              <div className="flex flex-col items-center gap-4 mt-8">
+                <div className="w-8 h-8 rounded-full border-4 border-slate-100 border-t-teal-500 animate-spin" />
+                <span className="text-sm text-slate-400 font-medium">The tutorial will begin shortly...</span>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Inactivity countdown bar — thin strip at top of card */}
+              {stepStatus === 'waiting' && !isCompleted && (
             <div className="relative h-1 w-full bg-slate-100 overflow-hidden">
               <div
                 key={countdownKey}
@@ -361,6 +399,8 @@ export default function GestureTutorial({ lastGesture, onComplete, onTimeout }) 
                 </span>
               </div>
             </div>
+          )}
+            </>
           )}
         </div>
       </div>
