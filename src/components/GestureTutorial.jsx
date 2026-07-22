@@ -11,32 +11,47 @@ import thumbsupVideo from '../assets/tutorials/thumbsup.mp4';
 const STEPS = [
   {
     gesture: 'Previous',
-    title: 'Swipe Left',
-    description: 'Move your hand to the left side of the camera view',
+    title: 'MOVE LEFT',
+    name: '👋 Swipe Left',
+    description: (
+      <>Swipe your open hand from <strong className="text-slate-800">right to left</strong> to move to the previous option.</>
+    ),
     video: swipeleftVideo,
   },
   {
     gesture: 'Next',
-    title: 'Swipe Right',
-    description: 'Move your hand to the right side of the camera view',
+    title: 'MOVE RIGHT',
+    name: '👋 Swipe Right',
+    description: (
+      <>Swipe your open hand from <strong className="text-slate-800">left to right</strong> to move to the next option.</>
+    ),
     video: swiperightVideo,
   },
   {
     gesture: 'Continue',
-    title: 'Point Up',
-    description: 'Hold your index finger pointing upward',
+    title: 'CONTINUE',
+    name: '☝️ Point Up',
+    description: (
+      <>Point your index finger upward to continue to the next screen or proceed with the current action.</>
+    ),
     video: pointupVideo,
   },
   {
     gesture: 'Back',
-    title: 'Thumbs Down',
-    description: 'Hold your thumb pointing downward',
+    title: 'BACK / CANCEL',
+    name: '👎 Thumbs Down',
+    description: (
+      <>Use a <strong className="text-slate-800">Thumbs Down</strong> gesture to go back or cancel the current action.</>
+    ),
     video: thumbsdownVideo,
   },
   {
     gesture: 'Select',
-    title: 'Thumbs Up',
-    description: 'Hold your thumb pointing upward',
+    title: 'SELECT',
+    name: '👍 Thumbs Up',
+    description: (
+      <>Use a <strong className="text-slate-800">Thumbs Up</strong> gesture to select or confirm the highlighted option.</>
+    ),
     video: thumbsupVideo,
   },
 ];
@@ -293,13 +308,18 @@ export default function GestureTutorial({ lastGesture, onComplete, onTimeout }) 
           <div key={stepKey} className="px-10 pb-6 tutorial-step-enter">
             {stepStatus === 'waiting' && !isCompleted && (
               <>
-                {/* Gesture title */}
-                <h3 className="text-4xl font-extrabold text-slate-800 mb-2 tracking-tight">
-                  {step.title}
-                </h3>
-                <p className="text-lg text-slate-500 mb-8">
-                  {step.description}
-                </p>
+                {/* Gesture instruction */}
+                <div className="text-center flex flex-col items-center">
+                  <span className="inline-block px-4 py-1 bg-teal-50 text-teal-700 font-bold rounded-full text-base mb-3 border border-teal-100">
+                    {step.name}
+                  </span>
+                  <h3 className="text-5xl font-black text-slate-800 mb-4 tracking-tight uppercase">
+                    {step.title}
+                  </h3>
+                  <p className="text-xl text-slate-500 mb-8 max-w-lg mx-auto leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
 
                 {/* Video container */}
                 <div 

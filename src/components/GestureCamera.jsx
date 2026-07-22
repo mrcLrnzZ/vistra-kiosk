@@ -121,8 +121,10 @@ export default function GestureCamera({ onGesture, onStatusChange }) {
     const startTimeMs = performance.now();
     const now = Date.now();
 
-    if (video.currentTime !== predictWebcam.lastVideoTime) {
+    // Throttle ML inference to roughly 15 FPS (every 66ms) to drastically reduce CPU/GPU load
+    if (video.currentTime !== predictWebcam.lastVideoTime && now - (predictWebcam.lastInferenceTime || 0) >= 66) {
       predictWebcam.lastVideoTime = video.currentTime;
+      predictWebcam.lastInferenceTime = now;
       const results = recognizer.recognizeForVideo(video, startTimeMs);
 
       const ctx = canvas.getContext('2d');
