@@ -6,7 +6,7 @@ export default function GestureIndicator({ status }) {
   const isCooldown = status?.cooldownRemaining > 0;
 
   return (
-    <div className="absolute top-6 right-6 z-50 bg-white/95 backdrop-blur-md shadow-xl rounded-2xl p-5 flex flex-col min-w-[280px] border border-teal-100 transition-all duration-300">
+    <div className="absolute top-6 right-6 z-[110] bg-white/95 backdrop-blur-md shadow-xl rounded-2xl p-5 flex flex-col min-w-[280px] border border-teal-100 transition-all duration-300">
       <div className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-3 mb-3 uppercase tracking-wider">
         System Status
       </div>

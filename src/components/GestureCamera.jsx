@@ -317,7 +317,7 @@ export default function GestureCamera({ onGesture, onStatusChange }) {
   };
 
   return (
-    <div className="absolute top-6 left-6 z-50 bg-white/90 backdrop-blur shadow-lg rounded-2xl p-2 border border-teal-100 flex flex-col gap-2">
+    <div className="absolute top-6 left-6 z-[110] bg-white/90 backdrop-blur shadow-lg rounded-2xl p-2 border border-teal-100 flex flex-col gap-2">
       <div className="relative w-48 h-36 rounded-xl overflow-hidden bg-slate-900 shadow-inner">
         {!isLoaded && (
           <div className="absolute inset-0 flex items-center justify-center text-teal-400 text-xs text-center p-2">
