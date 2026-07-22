@@ -7,6 +7,7 @@ import FinalScreen from './screens/FinalScreen'
 import GestureIndicator from './components/GestureIndicator'
 import GestureCamera from './components/GestureCamera'
 import GestureTutorial from './components/GestureTutorial'
+import AccountChoiceScreen from './screens/AccountChoiceScreen'
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('landing') // 'landing', 'modeSelection', 'healthCheck', 'summary', 'final'
@@ -85,7 +86,7 @@ function App() {
 
   const startCheck = () => {
     setMeasurements({})
-    setCurrentScreen('modeSelection')
+    setCurrentScreen('accountChoice')
   }
 
   const lastGestureTime = useRef(0);
@@ -114,6 +115,9 @@ function App() {
 
     if (currentScreen === 'landing') {
       // LandingScreen consumes its own events.
+      handled = true;
+    } else if (currentScreen === 'accountChoice') {
+      // AccountChoiceScreen consumes its own events.
       handled = true;
     } else if (currentScreen === 'modeSelection') {
       // ModeSelectionScreen consumes its own events.
@@ -164,6 +168,13 @@ function App() {
             onStart={startCheck} 
             lastGesture={lastGesture} 
             isTutorialActive={isTutorialActive} 
+          />
+        )}
+
+        {currentScreen === 'accountChoice' && (
+          <AccountChoiceScreen
+            onGuestContinue={() => setCurrentScreen('modeSelection')}
+            lastGesture={lastGesture}
           />
         )}
 
