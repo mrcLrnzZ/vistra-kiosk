@@ -60,7 +60,7 @@ function App() {
   useEffect(() => {
     const isDetected = gestureStatus?.hand === 'Detected';
 
-    if (tutorialCompleted && !isDetected) {
+    if (currentScreen === 'landing' && tutorialCompleted && !isDetected) {
       // User completed tutorial and hand left — start 5s reset timer
       idleResetTimer.current = setTimeout(() => {
         setTutorialCompleted(false);
@@ -68,7 +68,7 @@ function App() {
         prevHandDetected.current = false;
       }, 5000);
     } else {
-      // Hand is present or tutorial not done — cancel any pending reset
+      // Hand is present, tutorial not done, or not on landing screen — cancel any pending reset
       if (idleResetTimer.current) {
         clearTimeout(idleResetTimer.current);
         idleResetTimer.current = null;
@@ -105,7 +105,7 @@ function App() {
     setTutorialGesture({ name: gesture, timestamp: now });
 
     // Block all screen navigation while tutorial is active
-    if (!tutorialCompleted) return;
+    if (showTutorial && !tutorialCompleted) return;
 
     // Screen channel — only fires post-tutorial
     setLastGesture({ name: gesture, timestamp: now });
