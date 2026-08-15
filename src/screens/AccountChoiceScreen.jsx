@@ -24,7 +24,7 @@ export default function AccountChoiceScreen({ onGuestContinue, lastGesture }) {
             Do you have an account?
           </h1>
           <p className="text-2xl text-slate-600 font-light max-w-3xl mx-auto leading-relaxed">
-            If you already have an account, scan the QR code below to sign in.<br/>
+            If you already have an account, scan the QR code below to sign in and <strong className="font-bold text-slate-800"> Automatically save your vital data to your account.</strong><br/>
             If you don't have an account, simply use the <strong className="font-bold text-slate-800">Point Up</strong> gesture to continue as a guest.
           </p>
         </div>
@@ -41,7 +41,7 @@ export default function AccountChoiceScreen({ onGuestContinue, lastGesture }) {
 
         {/* Guest Continue Section */}
         <div className="mt-8 pt-8 w-full border-t border-slate-200 flex flex-col items-center">
-          <div className="bg-teal-50 px-10 py-6 rounded-3xl border border-teal-100 flex items-center space-x-6 transform transition-transform shadow-sm">
+          <div onClick={onGuestContinue} className="cursor-pointer bg-teal-50 px-10 py-6 rounded-3xl border border-teal-100 flex items-center space-x-6 transform transition-transform shadow-sm hover:shadow-md hover:scale-[1.02]">
             <div className="bg-teal-500 p-4 rounded-full text-white shadow-md flex items-center justify-center w-16 h-16">
               <span className="text-4xl">☝️</span>
             </div>

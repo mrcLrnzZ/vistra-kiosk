@@ -1,6 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Ruler, Weight, Thermometer, Activity, Wind, HeartPulse, CheckCircle2, X } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Ruler, Weight, Thermometer, Activity, Wind, HeartPulse, CheckCircle2 } from 'lucide-react';
 import clsx from 'clsx';
+import SensorInstructionModal from '../components/SensorInstructionModal';
+import SensorMeasuring from '../components/SensorMeasuring';
+import SensorResult from '../components/SensorResult';
+import { readSensor, formatSensorResult } from '../services/sensorService';
 
 const SENSORS = [
   { id: 'height', label: 'Height', icon: Ruler, description: 'Measure your height automatically.', btnText: 'Measure Height', color: 'text-blue-500', bg: 'bg-blue-50' },
@@ -12,46 +16,183 @@ const SENSORS = [
 ];
 
 export default function HealthCheckScreen({ mode, measurements, setMeasurements, onComplete, onBack, lastGesture }) {
+  // --- State ---
   const [activeSensor, setActiveSensor] = useState(null);
-  const [readingState, setReadingState] = useState('idle'); // idle, preparing, scanning, processing, done
+  const [measurementState, setMeasurementState] = useState('idle'); // idle | instructions | measuring | result | error
+  const [sensorResult, setSensorResult] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const lastProcessedTime = useRef(lastGesture?.timestamp || 0);
+  const measurementAbortRef = useRef(false);
 
   const isAuto = mode === 'auto';
   const completedCount = SENSORS.filter(s => measurements[s.id] !== undefined).length;
   const allCompleted = completedCount === SENSORS.length;
 
-  // Auto mode sequencer
-  useEffect(() => {
-    if (isAuto && !activeSensor && !allCompleted) {
-       const nextIndex = SENSORS.findIndex(s => measurements[s.id] === undefined);
-       if (nextIndex !== -1) {
-         setSelectedIndex(nextIndex);
-         handleMeasureClick(SENSORS[nextIndex]);
-       }
-    } else if (isAuto && !activeSensor && allCompleted) {
-       onComplete();
-    }
-  }, [isAuto, activeSensor, allCompleted, measurements, onComplete]);
+  // --- Sensor selection ---
+  const selectSensor = useCallback((sensor) => {
+    setActiveSensor(sensor);
+    setSensorResult(null);
+    setMeasurementState('instructions');
+    measurementAbortRef.current = false;
+  }, []);
 
-  // Gesture handling
+  // --- Start measurement ---
+  const startMeasurement = useCallback(async () => {
+    if (!activeSensor) return;
+    setMeasurementState('measuring');
+    measurementAbortRef.current = false;
+
+    try {
+      const result = await readSensor(activeSensor.id);
+
+      // If the user navigated away during measurement, discard
+      if (measurementAbortRef.current) return;
+
+      if (!result) {
+        setMeasurementState('error');
+        return;
+      }
+
+      setSensorResult(result);
+      setMeasurementState('result');
+    } catch (err) {
+      console.error('Sensor read failed:', err);
+      if (!measurementAbortRef.current) {
+        setMeasurementState('error');
+      }
+    }
+  }, [activeSensor]);
+
+  // --- Handlers ---
+  const handleReady = useCallback(() => {
+    startMeasurement();
+  }, [startMeasurement]);
+
+  const handleCancel = useCallback(() => {
+    measurementAbortRef.current = true;
+    setActiveSensor(null);
+    setSensorResult(null);
+    setMeasurementState('idle');
+  }, []);
+
+  const handleMeasureAgain = useCallback(() => {
+    // Restart instruction workflow for the SAME sensor
+    setSensorResult(null);
+    setMeasurementState('instructions');
+  }, []);
+
+  const handleContinue = useCallback(() => {
+    // Accept the result, store it, return to grid
+    if (activeSensor && sensorResult) {
+      setMeasurements(prev => ({ ...prev, [activeSensor.id]: sensorResult }));
+    }
+    measurementAbortRef.current = true;
+    setActiveSensor(null);
+    setSensorResult(null);
+    setMeasurementState('idle');
+  }, [activeSensor, sensorResult, setMeasurements]);
+
+  const handleBackToSensors = useCallback(() => {
+    // Discard result, return to grid
+    measurementAbortRef.current = true;
+    setActiveSensor(null);
+    setSensorResult(null);
+    setMeasurementState('idle');
+  }, []);
+
+  // --- Auto mode sequencer ---
+  useEffect(() => {
+    if (isAuto && !activeSensor && !allCompleted && measurementState === 'idle') {
+      const nextIndex = SENSORS.findIndex(s => measurements[s.id] === undefined);
+      if (nextIndex !== -1) {
+        setSelectedIndex(nextIndex);
+        selectSensor(SENSORS[nextIndex]);
+      }
+    } else if (isAuto && !activeSensor && allCompleted && measurementState === 'idle') {
+      onComplete();
+    }
+  }, [isAuto, activeSensor, allCompleted, measurements, measurementState, onComplete, selectSensor]);
+
+  // Auto mode: auto-trigger ready after showing instructions briefly
+  useEffect(() => {
+    if (isAuto && measurementState === 'instructions' && activeSensor) {
+      const timer = setTimeout(() => {
+        startMeasurement();
+      }, 3000); // Show instructions for 3 seconds in auto mode
+      return () => clearTimeout(timer);
+    }
+  }, [isAuto, measurementState, activeSensor, startMeasurement]);
+
+  // Auto mode: auto-continue after result
+  useEffect(() => {
+    if (isAuto && measurementState === 'result' && activeSensor && sensorResult) {
+      const timer = setTimeout(() => {
+        handleContinue();
+      }, 3000); // Show result for 3 seconds before auto-continuing
+      return () => clearTimeout(timer);
+    }
+  }, [isAuto, measurementState, activeSensor, sensorResult, handleContinue]);
+
+  // --- Gesture handling ---
   useEffect(() => {
     if (!lastGesture || lastGesture.timestamp <= lastProcessedTime.current) return;
     lastProcessedTime.current = lastGesture.timestamp;
 
     const gesture = lastGesture.name;
 
-    // Handle gestures when a modal is open
+    // ---- Active measurement flow ----
     if (activeSensor) {
-      if (gesture === 'Back') {
-        if (isAuto) onBack(); else closeModal();
-      } else if (gesture === 'Continue' && readingState === 'done') {
-        closeModal();
+      switch (measurementState) {
+        case 'instructions':
+          if (gesture === 'Continue') {
+            // Point Up → Ready
+            handleReady();
+          } else if (gesture === 'Back') {
+            // Thumbs Down → Cancel
+            handleCancel();
+          }
+          return;
+
+        case 'measuring':
+          // Block all gestures during measurement
+          if (gesture === 'Back') {
+            // Allow abort in manual mode
+            if (!isAuto) handleCancel();
+          }
+          return;
+
+        case 'result':
+          if (gesture === 'Continue') {
+            // Point Up → Measure Again
+            handleMeasureAgain();
+          } else if (gesture === 'Select') {
+            // Thumbs Up → Accept / Continue
+            handleContinue();
+          } else if (gesture === 'Back') {
+            // Thumbs Down → Back to Sensors
+            handleBackToSensors();
+          }
+          return;
+
+        case 'error':
+          if (gesture === 'Continue' || gesture === 'Select') {
+            handleMeasureAgain();
+          } else if (gesture === 'Back') {
+            handleBackToSensors();
+          }
+          return;
+
+        default:
+          return;
       }
-      return;
     }
 
-    if (isAuto) return; // Prevent manual grid navigation in auto mode
+    // ---- Sensor grid navigation ----
+    if (isAuto) {
+      // In auto mode, only allow back to exit
+      if (gesture === 'Back') onBack();
+      return;
+    }
 
     if (gesture === 'Next') {
       setSelectedIndex(prev => (prev + 1) % SENSORS.length);
@@ -59,7 +200,7 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
       setSelectedIndex(prev => (prev - 1 + SENSORS.length) % SENSORS.length);
     } else if (gesture === 'Select') {
       if (!allCompleted) {
-        handleMeasureClick(SENSORS[selectedIndex]);
+        selectSensor(SENSORS[selectedIndex]);
       }
     } else if (gesture === 'Continue') {
       if (completedCount > 0) {
@@ -68,41 +209,13 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
     } else if (gesture === 'Back') {
       onBack();
     }
-  }, [lastGesture, activeSensor, readingState, selectedIndex, allCompleted, completedCount, onComplete, onBack, isAuto]);
+  }, [lastGesture, activeSensor, measurementState, selectedIndex, allCompleted, completedCount,
+      onComplete, onBack, isAuto, handleReady, handleCancel, handleMeasureAgain, handleContinue, handleBackToSensors, selectSensor]);
 
-  const handleMeasureClick = (sensor) => {
-    setActiveSensor(sensor);
-    setReadingState('preparing');
-
-    setTimeout(() => setReadingState('scanning'), 1000);
-    setTimeout(() => setReadingState('processing'), 2000);
-
-    setTimeout(() => {
-      setReadingState('done');
-      const val = generateRandomValue(sensor.id);
-      setMeasurements(prev => ({ ...prev, [sensor.id]: val }));
-    }, 3000);
-  };
-
-  const generateRandomValue = (id) => {
-    switch (id) {
-      case 'height': return (150 + Math.random() * 40).toFixed(1) + ' cm';
-      case 'weight': return (50 + Math.random() * 40).toFixed(1) + ' kg';
-      case 'temperature': return (36.1 + Math.random() * 1.5).toFixed(1) + ' °C';
-      case 'heartRate': return Math.floor(60 + Math.random() * 40) + ' BPM';
-      case 'bloodOxygen': return Math.floor(95 + Math.random() * 5) + '%';
-      case 'bloodPressure': return `${Math.floor(110 + Math.random() * 20)} / ${Math.floor(70 + Math.random() * 15)} mmHg`;
-      default: return 'N/A';
-    }
-  };
-
-  const closeModal = () => {
-    setActiveSensor(null);
-    setReadingState('idle');
-  };
-
+  // --- Render ---
   return (
     <div className="flex flex-col w-full h-full bg-slate-50 p-8 relative">
+      {/* Header */}
       <div className="flex flex-col mb-8">
         <div className="flex justify-between items-center mb-4">
           <div>
@@ -139,6 +252,7 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
         </div>
       </div>
 
+      {/* Sensor Grid */}
       <div className="grid grid-cols-3 gap-8 flex-1">
         {SENSORS.map((sensor, index) => {
           const Icon = sensor.icon;
@@ -151,7 +265,7 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
               onClick={() => {
                 if (!isAuto) {
                   setSelectedIndex(index);
-                  handleMeasureClick(sensor);
+                  selectSensor(sensor);
                 }
               }}
               className={clsx(
@@ -178,7 +292,9 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
 
               {isCompleted ? (
                 <div className="mt-6 flex flex-col items-center w-full">
-                  <div className="text-3xl font-extrabold text-teal-600 mb-2">{measurements[sensor.id]}</div>
+                  <div className="text-3xl font-extrabold text-teal-600 mb-2">
+                    {formatSensorResult(sensor.id, measurements[sensor.id])}
+                  </div>
                   <div className="flex items-center text-teal-600 font-medium bg-teal-50 px-4 py-2 rounded-full border border-teal-100">
                     <CheckCircle2 className="w-5 h-5 mr-2" /> Completed
                   </div>
@@ -198,55 +314,28 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
         })}
       </div>
 
-      {/* Modal */}
-      {activeSensor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm">
-          <div className="bg-white rounded-[2.5rem] p-12 shadow-2xl w-full max-w-2xl relative transform transition-all flex flex-col items-center text-center">
-            {readingState === 'done' ? (
-              <button onClick={() => {
-                if (isAuto) onBack(); else closeModal();
-              }} className="absolute top-8 right-8 text-slate-400 hover:text-slate-600">
-                <X className="w-8 h-8" />
-              </button>
-            ) : null}
+      {/* Measurement Flow Overlays */}
+      {activeSensor && measurementState === 'instructions' && (
+        <SensorInstructionModal
+          sensor={activeSensor}
+          onReady={handleReady}
+          onCancel={handleCancel}
+        />
+      )}
 
-            <div className={clsx("w-32 h-32 rounded-full flex items-center justify-center mb-8", activeSensor.bg)}>
-              {readingState === 'done' ? (
-                <CheckCircle2 className="w-20 h-20 text-teal-500" />
-              ) : (
-                <activeSensor.icon className={clsx("w-16 h-16 animate-pulse", activeSensor.color)} />
-              )}
-            </div>
+      {activeSensor && measurementState === 'measuring' && (
+        <SensorMeasuring sensor={activeSensor} />
+      )}
 
-            <h3 className="text-4xl font-bold text-slate-800 mb-4">{activeSensor.label}</h3>
-
-            <div className="h-24 flex items-center justify-center">
-              {readingState === 'done' ? (
-                <div className="text-5xl font-extrabold text-teal-600">
-                  {measurements[activeSensor.id]}
-                </div>
-              ) : (
-                <div className="text-2xl text-slate-500 font-medium animate-pulse">
-                  {readingState === 'preparing' && "Preparing sensor..."}
-                  {readingState === 'scanning' && "Scanning..."}
-                  {readingState === 'processing' && "Processing..."}
-                </div>
-              )}
-            </div>
-
-            {readingState === 'done' && (
-              <div className="mt-8 flex flex-col items-center">
-                <button
-                  onClick={closeModal}
-                  className="px-12 py-4 bg-teal-600 hover:bg-teal-500 text-white font-bold text-xl rounded-full shadow-lg transition-colors mb-4"
-                >
-                  Continue
-                </button>
-                <span className="text-slate-400 text-sm font-medium">Point Up to Continue</span>
-              </div>
-            )}
-          </div>
-        </div>
+      {activeSensor && (measurementState === 'result' || measurementState === 'error') && (
+        <SensorResult
+          sensor={activeSensor}
+          result={sensorResult}
+          isError={measurementState === 'error'}
+          onMeasureAgain={handleMeasureAgain}
+          onContinue={handleContinue}
+          onBack={handleBackToSensors}
+        />
       )}
     </div>
   );

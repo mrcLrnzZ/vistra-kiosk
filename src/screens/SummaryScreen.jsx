@@ -1,13 +1,12 @@
 import React from 'react';
 import { Ruler, Weight, Thermometer, Activity, Wind, HeartPulse } from 'lucide-react';
+import { formatSensorResult } from '../services/sensorService';
 
 export default function SummaryScreen({ measurements, onNext }) {
 
-  // Helpers
-  const parseNum = (str) => parseFloat((str || '').replace(/[^\d.]/g, ''));
-
-  const heightVal = parseNum(measurements.height);
-  const weightVal = parseNum(measurements.weight);
+  // Helpers — now reads structured objects instead of parsing strings
+  const heightVal = measurements.height?.value;
+  const weightVal = measurements.weight?.value;
 
   let bmi = 0;
   let bmiCategory = '';
@@ -32,15 +31,15 @@ export default function SummaryScreen({ measurements, onNext }) {
     }
   }
 
-  // Simple recommendations based on random rules
+  // Simple recommendations based on structured data
   const getRecommendation = () => {
-    const temp = parseNum(measurements.temperature);
-    const sysBP = parseNum(measurements.bloodPressure.split('/')[0]);
+    const temp = measurements.temperature?.value;
+    const sysBP = measurements.bloodPressure?.systolic;
 
-    if (temp > 37.5) {
+    if (temp && temp > 37.5) {
       return { text: "Your temperature is elevated. Please consult the clinic nurse.", type: 'warning' };
     }
-    if (sysBP > 130) {
+    if (sysBP && sysBP > 130) {
       return { text: "Blood pressure is above the normal range. A follow-up check is recommended.", type: 'warning' };
     }
     return { text: "Your vital signs are within the normal range. Keep up the good work!", type: 'success' };
@@ -49,12 +48,12 @@ export default function SummaryScreen({ measurements, onNext }) {
   const rec = getRecommendation();
 
   const SUMMARY_CARDS = [
-    { label: 'Height', value: measurements.height, icon: Ruler, bg: 'bg-blue-50', color: 'text-blue-500', status: 'normal' },
-    { label: 'Weight', value: measurements.weight, icon: Weight, bg: 'bg-indigo-50', color: 'text-indigo-500', status: 'normal' },
-    { label: 'Temperature', value: measurements.temperature, icon: Thermometer, bg: 'bg-orange-50', color: 'text-orange-500', status: parseNum(measurements.temperature) > 37.5 ? 'attention' : 'normal' },
-    { label: 'Heart Rate', value: measurements.heartRate, icon: Activity, bg: 'bg-rose-50', color: 'text-rose-500', status: 'normal' },
-    { label: 'SpO₂', value: measurements.bloodOxygen, icon: Wind, bg: 'bg-cyan-50', color: 'text-cyan-500', status: parseNum(measurements.bloodOxygen) < 95 ? 'attention' : 'normal' },
-    { label: 'Blood Pressure', value: measurements.bloodPressure, icon: HeartPulse, bg: 'bg-purple-50', color: 'text-purple-500', status: parseNum(measurements.bloodPressure.split('/')[0]) > 130 ? 'attention' : 'normal' },
+    { id: 'height', label: 'Height', icon: Ruler, bg: 'bg-blue-50', color: 'text-blue-500', status: 'normal' },
+    { id: 'weight', label: 'Weight', icon: Weight, bg: 'bg-indigo-50', color: 'text-indigo-500', status: 'normal' },
+    { id: 'temperature', label: 'Temperature', icon: Thermometer, bg: 'bg-orange-50', color: 'text-orange-500', status: (measurements.temperature?.value ?? 0) > 37.5 ? 'attention' : 'normal' },
+    { id: 'heartRate', label: 'Heart Rate', icon: Activity, bg: 'bg-rose-50', color: 'text-rose-500', status: 'normal' },
+    { id: 'bloodOxygen', label: 'SpO₂', icon: Wind, bg: 'bg-cyan-50', color: 'text-cyan-500', status: (measurements.bloodOxygen?.value ?? 100) < 95 ? 'attention' : 'normal' },
+    { id: 'bloodPressure', label: 'Blood Pressure', icon: HeartPulse, bg: 'bg-purple-50', color: 'text-purple-500', status: (measurements.bloodPressure?.systolic ?? 0) > 130 ? 'attention' : 'normal' },
   ];
 
   const StatusDot = ({ status }) => {
@@ -75,6 +74,9 @@ export default function SummaryScreen({ measurements, onNext }) {
         <div className="flex-2 grid grid-cols-2 gap-4 w-2/3">
           {SUMMARY_CARDS.map((card, idx) => {
             const Icon = card.icon;
+            const measurement = measurements[card.id];
+            const displayValue = measurement ? formatSensorResult(card.id, measurement) : '—';
+
             return (
               <div key={idx} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex items-center">
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center mr-6 ${card.bg}`}>
@@ -82,9 +84,9 @@ export default function SummaryScreen({ measurements, onNext }) {
                 </div>
                 <div className="flex-1">
                   <div className="text-sm text-slate-500 font-medium uppercase tracking-wider">{card.label}</div>
-                  <div className="text-2xl font-bold text-slate-800">{card.value}</div>
+                  <div className="text-2xl font-bold text-slate-800">{displayValue}</div>
                 </div>
-                <StatusDot status={card.status} />
+                {measurement && <StatusDot status={card.status} />}
               </div>
             );
           })}
@@ -94,8 +96,8 @@ export default function SummaryScreen({ measurements, onNext }) {
         <div className="flex-1 w-1/3 flex flex-col gap-6">
           <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center">
             <h3 className="text-xl font-bold text-slate-600 mb-4">Body Mass Index (BMI)</h3>
-            <div className="text-6xl font-black text-slate-800 mb-2">{bmi.toFixed(1)}</div>
-            <div className={`text-2xl font-bold ${bmiColor}`}>{bmiCategory}</div>
+            <div className="text-6xl font-black text-slate-800 mb-2">{bmi > 0 ? bmi.toFixed(1) : '—'}</div>
+            <div className={`text-2xl font-bold ${bmiColor}`}>{bmiCategory || '—'}</div>
           </div>
 
           <div className={`bg-white rounded-3xl p-8 shadow-sm border ${rec.type === 'success' ? 'border-green-200' : 'border-yellow-200'} flex-1 flex flex-col items-center justify-center text-center`}>
