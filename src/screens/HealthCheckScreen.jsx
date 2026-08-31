@@ -10,9 +10,7 @@ const SENSORS = [
   { id: 'height', label: 'Height', icon: Ruler, description: 'Measure your height automatically.', btnText: 'Measure Height', color: 'text-blue-500', bg: 'bg-blue-50' },
   { id: 'weight', label: 'Weight', icon: Weight, description: 'Measure your body weight.', btnText: 'Measure Weight', color: 'text-indigo-500', bg: 'bg-indigo-50' },
   { id: 'temperature', label: 'Body Temperature', icon: Thermometer, description: 'Non-contact temperature scan.', btnText: 'Scan Temperature', color: 'text-orange-500', bg: 'bg-orange-50' },
-  { id: 'heartRate', label: 'Heart Rate', icon: Activity, description: 'Measure your pulse rate.', btnText: 'Measure BPM', color: 'text-rose-500', bg: 'bg-rose-50' },
-  { id: 'bloodOxygen', label: 'Blood Oxygen (SpO₂)', icon: Wind, description: 'Measure oxygen saturation.', btnText: 'Measure SpO₂', color: 'text-cyan-500', bg: 'bg-cyan-50' },
-  { id: 'bloodPressure', label: 'Blood Pressure', icon: HeartPulse, description: 'Measure systolic and diastolic pressure.', btnText: 'Measure BP', color: 'text-purple-500', bg: 'bg-purple-50' },
+  { id: 'heartAndOxygen', label: 'Heart Rate & SpO₂', icon: Activity, description: 'Measure pulse rate and oxygen saturation.', btnText: 'Measure Vitals', color: 'text-rose-500', bg: 'bg-rose-50' },
 ];
 
 export default function HealthCheckScreen({ mode, measurements, setMeasurements, onComplete, onBack, lastGesture }) {
@@ -253,7 +251,8 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
       </div>
 
       {/* Sensor Grid */}
-      <div className="grid grid-cols-3 gap-8 flex-1">
+      <div className="flex-1 flex flex-col justify-center">
+        <div className="grid grid-cols-4 gap-8 w-full">
         {SENSORS.map((sensor, index) => {
           const Icon = sensor.icon;
           const isCompleted = measurements[sensor.id] !== undefined;
@@ -312,6 +311,7 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
             </div>
           );
         })}
+      </div>
       </div>
 
       {/* Measurement Flow Overlays */}

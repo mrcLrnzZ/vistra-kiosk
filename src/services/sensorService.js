@@ -54,43 +54,17 @@ export const SENSOR_INSTRUCTIONS = {
     measuringText: 'Scanning your temperature...',
   },
 
-  heartRate: {
-    title: 'Prepare for Heart Rate Measurement',
+  heartAndOxygen: {
+    title: 'Prepare for Heart Rate & SpO₂ Measurement',
     steps: [
       'Locate the sensor underneath the monitor.',
       'Place your hand or finger in the designated sensor area.',
       'Keep your hand still.',
       'Relax and breathe normally.',
-      'Wait while the kiosk detects your pulse.',
-    ],
-    readyText: 'Point up when you are ready.',
-    measuringText: 'Measuring your heart rate...',
-  },
-
-  bloodOxygen: {
-    title: 'Prepare for Blood Oxygen Measurement',
-    steps: [
-      'Locate the blue sensor underneath the monitor.',
-      'Place your hand or finger in the designated sensor area.',
-      'Keep your hand still.',
-      'Do not move while the measurement is in progress.',
-      'Wait for the oxygen reading.',
-    ],
-    readyText: 'Point up when you are ready.',
-    measuringText: 'Measuring blood oxygen...',
-  },
-
-  bloodPressure: {
-    title: 'Prepare for Blood Pressure Measurement',
-    steps: [
-      'Locate the blue sensor underneath the monitor.',
-      'Place your hand or finger in the designated sensor area.',
-      'Keep your arm and hand still.',
-      'Relax and avoid unnecessary movement.',
       'Wait for the measurement to complete.',
     ],
     readyText: 'Point up when you are ready.',
-    measuringText: 'Measuring your blood pressure...',
+    measuringText: 'Measuring your vitals...',
   },
 };
 
@@ -135,15 +109,9 @@ function getOrCreateBase(sensorId) {
     case 'temperature':
       base.value = randomBetween(36.0, 37.2);
       break;
-    case 'heartRate':
-      base.value = randomBetween(60, 100);
-      break;
-    case 'bloodOxygen':
-      base.value = randomBetween(95, 100);
-      break;
-    case 'bloodPressure':
-      base.systolic = randomBetween(105, 135);
-      base.diastolic = randomBetween(65, 85);
+    case 'heartAndOxygen':
+      base.heartRate = randomBetween(60, 100);
+      base.bloodOxygen = randomBetween(95, 100);
       break;
     default:
       return null;
@@ -193,23 +161,10 @@ export function generateDummySensorData(sensorId) {
         unit: '°C',
       };
 
-    case 'heartRate':
+    case 'heartAndOxygen':
       return {
-        value: Math.round(Math.min(100, Math.max(60, jitter(base.value, 2)))),
-        unit: 'BPM',
-      };
-
-    case 'bloodOxygen':
-      return {
-        value: Math.round(Math.min(100, Math.max(95, jitter(base.value, 1)))),
-        unit: '%',
-      };
-
-    case 'bloodPressure':
-      return {
-        systolic: Math.round(Math.min(135, Math.max(105, jitter(base.systolic, 3)))),
-        diastolic: Math.round(Math.min(85, Math.max(65, jitter(base.diastolic, 2)))),
-        unit: 'mmHg',
+        heartRate: Math.round(Math.min(100, Math.max(60, jitter(base.heartRate, 2)))),
+        bloodOxygen: Math.round(Math.min(100, Math.max(95, jitter(base.bloodOxygen, 1)))),
       };
 
     default:
@@ -227,7 +182,7 @@ export function generateDummySensorData(sensorId) {
  * FUTURE: Replace this function body with actual Arduino / Node.js /
  * SerialPort communication. The return shape must remain the same.
  *
- * @param {string} sensorId - One of: height, weight, temperature, heartRate, bloodOxygen, bloodPressure
+ * @param {string} sensorId - One of: height, weight, temperature, heartAndOxygen
  * @returns {Promise<Object>} Standardized sensor result
  */
 export async function readSensor(sensorId) {
@@ -248,12 +203,8 @@ export async function readSensor(sensorId) {
 export function formatSensorResult(sensorId, result) {
   if (!result) return 'N/A';
 
-  if (sensorId === 'bloodPressure') {
-    return `${result.systolic} / ${result.diastolic} ${result.unit}`;
-  }
-
-  if (sensorId === 'bloodOxygen') {
-    return `${result.value}% SpO₂`;
+  if (sensorId === 'heartAndOxygen') {
+    return `${result.heartRate} BPM / ${result.bloodOxygen}% SpO₂`;
   }
 
   return `${result.value} ${result.unit}`;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ruler, Weight, Thermometer, Activity, Wind, HeartPulse } from 'lucide-react';
+import { Ruler, Weight, Thermometer, Activity } from 'lucide-react';
 import { formatSensorResult } from '../services/sensorService';
 
 export default function SummaryScreen({ measurements, onNext }) {
@@ -34,13 +34,13 @@ export default function SummaryScreen({ measurements, onNext }) {
   // Simple recommendations based on structured data
   const getRecommendation = () => {
     const temp = measurements.temperature?.value;
-    const sysBP = measurements.bloodPressure?.systolic;
+    const oxygen = measurements.heartAndOxygen?.bloodOxygen;
 
     if (temp && temp > 37.5) {
       return { text: "Your temperature is elevated. Please consult the clinic nurse.", type: 'warning' };
     }
-    if (sysBP && sysBP > 130) {
-      return { text: "Blood pressure is above the normal range. A follow-up check is recommended.", type: 'warning' };
+    if (oxygen && oxygen < 95) {
+      return { text: "Blood oxygen is below the normal range. A follow-up check is recommended.", type: 'warning' };
     }
     return { text: "Your vital signs are within the normal range. Keep up the good work!", type: 'success' };
   };
@@ -51,9 +51,7 @@ export default function SummaryScreen({ measurements, onNext }) {
     { id: 'height', label: 'Height', icon: Ruler, bg: 'bg-blue-50', color: 'text-blue-500', status: 'normal' },
     { id: 'weight', label: 'Weight', icon: Weight, bg: 'bg-indigo-50', color: 'text-indigo-500', status: 'normal' },
     { id: 'temperature', label: 'Temperature', icon: Thermometer, bg: 'bg-orange-50', color: 'text-orange-500', status: (measurements.temperature?.value ?? 0) > 37.5 ? 'attention' : 'normal' },
-    { id: 'heartRate', label: 'Heart Rate', icon: Activity, bg: 'bg-rose-50', color: 'text-rose-500', status: 'normal' },
-    { id: 'bloodOxygen', label: 'SpO₂', icon: Wind, bg: 'bg-cyan-50', color: 'text-cyan-500', status: (measurements.bloodOxygen?.value ?? 100) < 95 ? 'attention' : 'normal' },
-    { id: 'bloodPressure', label: 'Blood Pressure', icon: HeartPulse, bg: 'bg-purple-50', color: 'text-purple-500', status: (measurements.bloodPressure?.systolic ?? 0) > 130 ? 'attention' : 'normal' },
+    { id: 'heartAndOxygen', label: 'Heart Rate & SpO₂', icon: Activity, bg: 'bg-rose-50', color: 'text-rose-500', status: (measurements.heartAndOxygen?.bloodOxygen ?? 100) < 95 ? 'attention' : 'normal' },
   ];
 
   const StatusDot = ({ status }) => {
