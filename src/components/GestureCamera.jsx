@@ -154,7 +154,7 @@ export default function GestureCamera({ onGesture, onStatusChange }) {
         const centerX = sumX / landmarks.length;
         const centerY = sumY / landmarks.length;
         const visualX = 1.0 - centerX;
-        
+
         let detectedZone = 'Neutral';
         if (visualX < CONFIG.LEFT_ZONE_THRESHOLD) detectedZone = 'Left';
         else if (visualX > CONFIG.RIGHT_ZONE_THRESHOLD) detectedZone = 'Right';
@@ -196,7 +196,7 @@ export default function GestureCamera({ onGesture, onStatusChange }) {
             }
           }
         }
-        
+
         if (!priorityGestureActive && !isCooldown) {
           if (currentZone.current === 'Neutral' && detectedZone === 'Left') {
             actionToEmit = 'Previous';
@@ -220,17 +220,17 @@ export default function GestureCamera({ onGesture, onStatusChange }) {
           drawConnectors(ctx, handLandmarks, HAND_CONNECTIONS, { color: "#00FF00", lineWidth: 3 });
           drawLandmarks(ctx, handLandmarks, { color: "#FF0000", lineWidth: 2 });
         }
-        
+
         const canvasW = canvas.width;
         const canvasH = canvas.height;
-        
+
         const drawLeftLineX = canvasW * (1.0 - CONFIG.LEFT_ZONE_THRESHOLD);
         const drawRightLineX = canvasW * (1.0 - CONFIG.RIGHT_ZONE_THRESHOLD);
-        
+
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
         ctx.lineWidth = 2;
         ctx.setLineDash([5, 5]);
-        
+
         ctx.beginPath();
         ctx.moveTo(drawLeftLineX, 0);
         ctx.lineTo(drawLeftLineX, canvasH);
@@ -241,7 +241,7 @@ export default function GestureCamera({ onGesture, onStatusChange }) {
         ctx.lineTo(drawRightLineX, canvasH);
         ctx.stroke();
         ctx.setLineDash([]);
-        
+
         if (detectedZone === 'Left') {
           ctx.fillStyle = 'rgba(59, 130, 246, 0.3)';
           ctx.fillRect(drawLeftLineX, 0, canvasW - drawLeftLineX, canvasH);
@@ -249,7 +249,7 @@ export default function GestureCamera({ onGesture, onStatusChange }) {
           ctx.fillStyle = 'rgba(59, 130, 246, 0.3)';
           ctx.fillRect(0, 0, drawRightLineX, canvasH);
         }
-        
+
         ctx.beginPath();
         ctx.arc(centerX * canvasW, centerY * canvasH, 16, 0, 2 * Math.PI);
         ctx.fillStyle = 'rgba(20, 184, 166, 0.6)';
@@ -261,7 +261,7 @@ export default function GestureCamera({ onGesture, onStatusChange }) {
         gestureBuffer.current = [];
         stableGesture.current = 'None';
         holdStartTime.current = null;
-        lastFiredGesture.current = 'None'; 
+        lastFiredGesture.current = 'None';
         currentZone.current = 'Neutral';
 
         if (isCooldown) {
@@ -319,7 +319,7 @@ export default function GestureCamera({ onGesture, onStatusChange }) {
   };
 
   return (
-    <div className="absolute top-6 left-6 z-[110] bg-white/90 backdrop-blur shadow-lg rounded-2xl p-2 border border-teal-100 flex flex-col gap-2">
+    <div className="absolute top-6 left-6 z-[110] bg-white/90 backdrop-blur shadow-lg rounded-2xl p-2 border border-teal-100 flex flex-col items-center gap-2">
       <div className="relative w-48 h-36 rounded-xl overflow-hidden bg-slate-900 shadow-inner">
         {!isLoaded && (
           <div className="absolute inset-0 flex items-center justify-center text-teal-400 text-xs text-center p-2">

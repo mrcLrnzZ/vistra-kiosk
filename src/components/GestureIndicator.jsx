@@ -42,7 +42,7 @@ export default function GestureIndicator({ status }) {
           </div>
           <div className="bg-slate-50 rounded-lg p-2 text-center border border-slate-100 shadow-inner">
             <span className={clsx(
-              "font-bold transition-colors", 
+              "font-bold transition-colors",
               status?.zone === 'Left' || status?.zone === 'Right' ? 'text-blue-600' : 'text-slate-800'
             )}>
               {status ? status.zone : 'Waiting...'}

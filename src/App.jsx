@@ -161,13 +161,13 @@ function App() {
       )}
 
       <GestureIndicator status={gestureStatus} />
-      
+
       <main className="w-full h-full">
         {currentScreen === 'landing' && (
-          <LandingScreen 
-            onStart={startCheck} 
-            lastGesture={lastGesture} 
-            isTutorialActive={isTutorialActive} 
+          <LandingScreen
+            onStart={startCheck}
+            lastGesture={lastGesture}
+            isTutorialActive={isTutorialActive}
           />
         )}
 

@@ -1,7 +1,7 @@
 import React from 'react';
-import { ArrowUp, ThumbsUp, ThumbsDown, AlertTriangle, RotateCcw } from 'lucide-react';
+import { ArrowUp, ThumbsUp, ThumbsDown, AlertTriangle, RotateCcw, CheckCircle2 } from 'lucide-react';
 import clsx from 'clsx';
-import { formatSensorResult } from '../services/sensorService';
+import { formatSensorResult, isRealSensor } from '../services/sensorService';
 
 /**
  * Full-screen result display with Measure Again / Continue / Back actions.
@@ -9,14 +9,16 @@ import { formatSensorResult } from '../services/sensorService';
  *
  * Props:
  *   sensor         – object from the SENSORS array
- *   result         – structured result from readSensor()
+ *   result         – structured result from readSensor() or streamSensor()
  *   isError        – boolean, true if the measurement failed
+ *   errorMessage   – { title, subtitle } from Arduino error status (optional)
  *   onMeasureAgain – restart the instruction workflow for the same sensor
  *   onContinue     – accept the result and proceed
  *   onBack         – return to the sensor selection menu
  */
-export default function SensorResult({ sensor, result, isError, onMeasureAgain, onContinue, onBack }) {
+export default function SensorResult({ sensor, result, isError, errorMessage, onMeasureAgain, onContinue, onBack }) {
   const Icon = sensor.icon;
+  const isDummy = !isRealSensor(sensor.id);
 
   // ---- Error State ----
   if (isError) {
@@ -27,9 +29,11 @@ export default function SensorResult({ sensor, result, isError, onMeasureAgain, 
             <AlertTriangle className="w-16 h-16 text-red-500" />
           </div>
 
-          <h3 className="text-4xl font-bold text-slate-800 mb-4">Measurement Failed</h3>
+          <h3 className="text-4xl font-bold text-slate-800 mb-4">
+            {errorMessage?.title || 'Measurement Failed'}
+          </h3>
           <p className="text-xl text-slate-500 mb-10">
-            We could not obtain a reading.<br />Please try again.
+            {errorMessage?.subtitle || 'We could not obtain a reading. Please try again.'}
           </p>
 
           <div className="flex gap-4 w-full max-w-md">
@@ -59,9 +63,16 @@ export default function SensorResult({ sensor, result, isError, onMeasureAgain, 
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm">
       <div className="bg-white rounded-[2.5rem] p-16 shadow-2xl w-full max-w-2xl flex flex-col items-center text-center">
 
-        {/* Sensor icon */}
-        <div className={clsx('w-32 h-32 rounded-full flex items-center justify-center mb-6', sensor.bg)}>
-          <Icon className={clsx('w-16 h-16', sensor.color)} />
+        {/* Sensor icon with success check overlay */}
+        <div className="relative">
+          <div className={clsx('w-32 h-32 rounded-full flex items-center justify-center mb-6', sensor.bg)}>
+            <Icon className={clsx('w-16 h-16', sensor.color)} />
+          </div>
+          {!isDummy && (
+            <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center shadow-lg animate-[bounceIn_0.5s_ease-out]">
+              <CheckCircle2 className="w-6 h-6 text-white" />
+            </div>
+          )}
         </div>
 
         {/* Sensor label */}
@@ -72,10 +83,20 @@ export default function SensorResult({ sensor, result, isError, onMeasureAgain, 
           {displayValue}
         </div>
 
-        {/* TEST DATA warning */}
-        <div className="bg-amber-50 border border-amber-200 text-amber-700 px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider mb-10">
-          ⚠ Test Data — Simulated Reading
-        </div>
+        {/* TEST DATA warning — only for dummy sensors */}
+        {isDummy && (
+          <div className="bg-amber-50 border border-amber-200 text-amber-700 px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider mb-10">
+            ⚠ Test Data — Simulated Reading
+          </div>
+        )}
+
+        {/* Real sensor success badge */}
+        {!isDummy && (
+          <div className="bg-teal-50 border border-teal-200 text-teal-700 px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider mb-10 flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4" />
+            Live Sensor Reading
+          </div>
+        )}
 
         {/* Action buttons with gesture hints */}
         <div className="flex flex-col gap-4 w-full max-w-lg">
