@@ -262,9 +262,23 @@ const sessionCache = {};
  * Reset session cache (call when starting a new kiosk session).
  */
 export function resetSensorSession() {
-  Object.keys(sessionCache).forEach((key) => delete sessionCache[key]);
-  Object.keys(sessionBaseValues).forEach((key) => delete sessionBaseValues[key]);
-  console.log('[SensorService] Session reset');
+  const cachedKeys = Object.keys(sessionCache);
+  const baseKeys = Object.keys(sessionBaseValues);
+  cachedKeys.forEach((key) => delete sessionCache[key]);
+  baseKeys.forEach((key) => delete sessionBaseValues[key]);
+  console.log(`[Session] Clearing previous vitals — cached: [${cachedKeys}], bases: [${baseKeys}]`);
+  console.log('[Session] Starting new health-check session');
+}
+
+/**
+ * Clear cached result for a specific sensor (call on retry / measure again).
+ * Critical for heartAndOxygen so a fresh HEART command is sent to Arduino.
+ */
+export function clearSensorCache(sensorId) {
+  if (sessionCache[sensorId]) {
+    console.log(`[Sensor] Cache cleared for ${sensorId}`);
+    delete sessionCache[sensorId];
+  }
 }
 
 /**

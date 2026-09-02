@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { resetSensorSession } from './services/sensorService'
 import LandingScreen from './screens/LandingScreen'
 import ModeSelectionScreen from './screens/ModeSelectionScreen'
 import HealthCheckScreen from './screens/HealthCheckScreen'
@@ -85,7 +86,10 @@ function App() {
   }, [gestureStatus?.hand, tutorialCompleted]);
 
   const startCheck = () => {
+    // Reset ALL session data for a clean new patient
     setMeasurements({})
+    resetSensorSession() // Clear sensorService cache (heartAndOxygen, weight bases)
+    console.log('[App] New health-check session started — all vitals cleared')
     setCurrentScreen('accountChoice')
   }
 

@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import SensorInstructionModal from '../components/SensorInstructionModal';
 import SensorMeasuring from '../components/SensorMeasuring';
 import SensorResult from '../components/SensorResult';
-import { readSensor, streamSensor, formatSensorResult, isRealSensor, getStatusMessage, getCachedResult } from '../services/sensorService';
+import { readSensor, streamSensor, formatSensorResult, isRealSensor, getStatusMessage, getCachedResult, clearSensorCache } from '../services/sensorService';
 
 const SENSORS = [
   { id: 'height', label: 'Height', icon: Ruler, description: 'Measure your height automatically.', btnText: 'Measure Height', color: 'text-blue-500', bg: 'bg-blue-50' },
@@ -137,13 +137,35 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
   }, []);
 
   const handleMeasureAgain = useCallback(() => {
-    // Restart instruction workflow for the SAME sensor
+    if (!activeSensor) return;
+
+    console.log(`[Sensor] Retrying ${activeSensor.id}`);
+
+    // 1. Abort any lingering measurement
+    if (measurementAbortRef.current) {
+      measurementAbortRef.current.abort();
+      measurementAbortRef.current = null;
+    }
+
+    // 2. Clear the sensorService cache for this sensor
+    //    Critical for heartAndOxygen — prevents streamSensor from returning old cached data
+    clearSensorCache(activeSensor.id);
+    console.log(`[Sensor] Previous ${activeSensor.id} cleared`);
+
+    // 3. Remove the previously accepted measurement so stale data doesn't persist
+    setMeasurements(prev => {
+      const next = { ...prev };
+      delete next[activeSensor.id];
+      return next;
+    });
+
+    // 4. Reset component state for fresh measurement
     setSensorResult(null);
     setErrorMessage(null);
     setLiveStatus(null);
     setStatusMessage(null);
     setMeasurementState('instructions');
-  }, []);
+  }, [activeSensor, setMeasurements]);
 
   const handleContinue = useCallback(() => {
     // Accept the result, store it, return to grid
