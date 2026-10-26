@@ -421,7 +421,7 @@ function getOrCreateBase(sensorId) {
   const base = {};
   switch (sensorId) {
     case 'weight':
-      base.value = randomBetween(45, 100);
+      base.value = randomBetween(65, 70);
       break;
     default:
       return null;
