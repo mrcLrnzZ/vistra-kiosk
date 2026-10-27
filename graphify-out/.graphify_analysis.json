@@ -1,0 +1,318 @@
+{
+  "communities": {
+    "0": [
+      "ref_clsx",
+      "src_components_sensorinstructionmodal",
+      "src_components_sensorinstructionmodal_sensorinstructionmodal",
+      "src_components_sensormeasuring",
+      "src_components_sensormeasuring_sensormeasuring",
+      "src_components_sensorresult",
+      "src_components_sensorresult_sensorresult",
+      "src_screens_healthcheckscreen",
+      "src_screens_healthcheckscreen_healthcheckscreen",
+      "src_screens_healthcheckscreen_sensors",
+      "src_services_sensorservice",
+      "src_services_sensorservice_cacheresult",
+      "src_services_sensorservice_clearsensorcache",
+      "src_services_sensorservice_delay",
+      "src_services_sensorservice_error_messages",
+      "src_services_sensorservice_formatsensorresult",
+      "src_services_sensorservice_generatedummysensordata",
+      "src_services_sensorservice_getcachedresult",
+      "src_services_sensorservice_getorcreatebase",
+      "src_services_sensorservice_getstatusmessage",
+      "src_services_sensorservice_isrealsensor",
+      "src_services_sensorservice_jitter",
+      "src_services_sensorservice_maparduinostatus",
+      "src_services_sensorservice_normalizeresult",
+      "src_services_sensorservice_randombetween",
+      "src_services_sensorservice_readsensor",
+      "src_services_sensorservice_real_sensors",
+      "src_services_sensorservice_sensor_commands",
+      "src_services_sensorservice_sensor_instructions",
+      "src_services_sensorservice_sessionbasevalues",
+      "src_services_sensorservice_sessioncache",
+      "src_services_sensorservice_status_messages",
+      "src_services_sensorservice_streamsensor"
+    ],
+    "1": [
+      "eslint_config",
+      "package",
+      "package_devdependencies",
+      "package_devdependencies_autoprefixer",
+      "package_devdependencies_eslint",
+      "package_devdependencies_eslint_js",
+      "package_devdependencies_eslint_plugin_react_hooks",
+      "package_devdependencies_eslint_plugin_react_refresh",
+      "package_devdependencies_globals",
+      "package_devdependencies_postcss",
+      "package_devdependencies_tailwindcss",
+      "package_devdependencies_types_react",
+      "package_devdependencies_types_react_dom",
+      "package_devdependencies_vite",
+      "package_devdependencies_vitejs_plugin_react",
+      "package_name",
+      "package_private",
+      "package_type",
+      "package_version",
+      "ref_autoprefixer",
+      "ref_eslint",
+      "ref_eslint_js",
+      "ref_eslint_plugin_react_hooks",
+      "ref_eslint_plugin_react_refresh",
+      "ref_globals",
+      "ref_postcss",
+      "ref_tailwindcss",
+      "ref_types_react",
+      "ref_types_react_dom",
+      "ref_vite",
+      "ref_vitejs_plugin_react",
+      "vite_config"
+    ],
+    "2": [
+      "ref_cors",
+      "ref_dotenv",
+      "ref_express",
+      "ref_serialport",
+      "server_index",
+      "server_index_app",
+      "server_index_connectarduino",
+      "server_index_cors",
+      "server_index_express",
+      "server_index_schedulereconnect",
+      "server_index_sendsse",
+      "server_index_serialport_readlineparser",
+      "server_package",
+      "server_package_dependencies",
+      "server_package_dependencies_cors",
+      "server_package_dependencies_dotenv",
+      "server_package_dependencies_express",
+      "server_package_dependencies_serialport",
+      "server_package_description",
+      "server_package_main",
+      "server_package_name",
+      "server_package_scripts",
+      "server_package_scripts_dev",
+      "server_package_scripts_start",
+      "server_package_version"
+    ],
+    "3": [
+      "ref_lucide_react",
+      "ref_react",
+      "src_app",
+      "src_app_app",
+      "src_components_gesturecamera",
+      "src_components_gesturecamera_config",
+      "src_components_gesturecamera_gesturecamera",
+      "src_components_gesturecamera_hold_gestures",
+      "src_components_gestureindicator",
+      "src_components_gestureindicator_gestureindicator",
+      "src_components_gesturetutorial_gesturetutorial",
+      "src_index",
+      "src_main",
+      "src_screens_accountchoicescreen",
+      "src_screens_accountchoicescreen_accountchoicescreen",
+      "src_screens_finalscreen",
+      "src_screens_finalscreen_finalscreen",
+      "src_screens_landingscreen",
+      "src_screens_landingscreen_landingscreen",
+      "src_screens_modeselectionscreen",
+      "src_screens_modeselectionscreen_modeselectionscreen",
+      "src_screens_summaryscreen",
+      "src_screens_summaryscreen_summaryscreen",
+      "src_services_sensorservice_resetsensorsession"
+    ],
+    "4": [
+      "package_dependencies",
+      "package_dependencies_clsx",
+      "package_dependencies_lucide_react",
+      "package_dependencies_mediapipe_tasks_vision",
+      "package_dependencies_qrcode_react",
+      "package_dependencies_react",
+      "package_dependencies_react_dom",
+      "package_dependencies_supabase_supabase_js",
+      "package_dependencies_tailwind_merge",
+      "ref_mediapipe_tasks_vision",
+      "ref_qrcode_react",
+      "ref_react_dom",
+      "ref_supabase_supabase_js",
+      "ref_tailwind_merge",
+      "src_services_supabaseclient",
+      "src_services_supabaseclient_supabase"
+    ],
+    "5": [
+      "package_dependencies_context_mode",
+      "ref_context_mode",
+      "ref_fs",
+      "ref_path",
+      "temp_index_repo",
+      "temp_index_repo_ctx",
+      "temp_index_repo_fs",
+      "temp_index_repo_path",
+      "temp_index_repo_reporoot",
+      "temp_index_repo_shouldindex",
+      "temp_index_repo_walk"
+    ],
+    "6": [
+      "opencode",
+      "opencode_context_mode_command",
+      "opencode_context_mode_enabled",
+      "opencode_context_mode_environment",
+      "opencode_context_mode_type",
+      "opencode_environment_opencode",
+      "opencode_mcp",
+      "opencode_mcp_context_mode",
+      "opencode_schema"
+    ],
+    "7": [
+      "src_assets_tutorials_pointup",
+      "src_assets_tutorials_swipeleft",
+      "src_assets_tutorials_swiperight",
+      "src_assets_tutorials_thumbsdown",
+      "src_assets_tutorials_thumbsup",
+      "src_components_gesturetutorial",
+      "src_components_gesturetutorial_steps"
+    ],
+    "8": [
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_dev",
+      "package_scripts_lint",
+      "package_scripts_preview",
+      "package_scripts_server"
+    ],
+    "9": [
+      "tailwind_config",
+      "tailwindcss"
+    ],
+    "10": [
+      "postcss_config"
+    ]
+  },
+  "cohesion": {
+    "0": 0.14015151515151514,
+    "1": 0.0967741935483871,
+    "2": 0.10666666666666667,
+    "3": 0.19202898550724637,
+    "4": 0.125,
+    "5": 0.2,
+    "6": 0.2222222222222222,
+    "7": 0.2857142857142857,
+    "8": 0.3333333333333333,
+    "9": 1.0,
+    "10": 1.0
+  },
+  "gods": [
+    {
+      "id": "ref_react",
+      "label": "react",
+      "degree": 16
+    },
+    {
+      "id": "ref_lucide_react",
+      "label": "lucide-react",
+      "degree": 12
+    },
+    {
+      "id": "src_app_app",
+      "label": "App()",
+      "degree": 12
+    },
+    {
+      "id": "src_screens_healthcheckscreen_healthcheckscreen",
+      "label": "HealthCheckScreen()",
+      "degree": 12
+    },
+    {
+      "id": "ref_clsx",
+      "label": "clsx",
+      "degree": 8
+    },
+    {
+      "id": "src_services_sensorservice_streamsensor",
+      "label": "streamSensor()",
+      "degree": 8
+    },
+    {
+      "id": "package_scripts",
+      "label": "scripts",
+      "degree": 6
+    },
+    {
+      "id": "src_services_sensorservice_readsensor",
+      "label": "readSensor()",
+      "degree": 6
+    },
+    {
+      "id": "src_services_sensorservice_formatsensorresult",
+      "label": "formatSensorResult()",
+      "degree": 6
+    },
+    {
+      "id": "opencode_mcp_context_mode",
+      "label": "context-mode",
+      "degree": 5
+    }
+  ],
+  "surprises": [
+    {
+      "source": "App()",
+      "target": "HealthCheckScreen()",
+      "source_files": [
+        "src/App.jsx",
+        "src/screens/HealthCheckScreen.jsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities"
+    },
+    {
+      "source": "App()",
+      "target": "GestureCamera()",
+      "source_files": [
+        "src/App.jsx",
+        "src/components/GestureCamera.jsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "cross-file semantic connection"
+    },
+    {
+      "source": "App()",
+      "target": "GestureIndicator()",
+      "source_files": [
+        "src/App.jsx",
+        "src/components/GestureIndicator.jsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "cross-file semantic connection"
+    },
+    {
+      "source": "App()",
+      "target": "GestureTutorial()",
+      "source_files": [
+        "src/App.jsx",
+        "src/components/GestureTutorial.jsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "cross-file semantic connection"
+    },
+    {
+      "source": "App()",
+      "target": "AccountChoiceScreen()",
+      "source_files": [
+        "src/App.jsx",
+        "src/screens/AccountChoiceScreen.jsx"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "cross-file semantic connection"
+    }
+  ],
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}

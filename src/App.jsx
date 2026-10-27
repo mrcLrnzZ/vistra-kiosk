@@ -214,6 +214,7 @@ function App() {
         {currentScreen === 'final' && (
           <FinalScreen
             onRestart={() => setCurrentScreen('landing')}
+            measurements={measurements}
           />
         )}
       </main>

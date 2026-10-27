@@ -1,0 +1,182 @@
+{
+  "eslint.config.js": {
+    "mtime": 1783942137.7756033,
+    "seen": 1793059921.8470814,
+    "ast_hash": "3aa4b57d7f08181d86bde52a4dcb7f22",
+    "semantic_hash": "3aa4b57d7f08181d86bde52a4dcb7f22"
+  },
+  "opencode.json": {
+    "mtime": 1793053793.7080135,
+    "seen": 1793059921.8470986,
+    "ast_hash": "83d6a572a10bb4ca1f6285ee36d30c77",
+    "semantic_hash": "83d6a572a10bb4ca1f6285ee36d30c77"
+  },
+  "package.json": {
+    "mtime": 1793052410.751807,
+    "seen": 1793059921.8471394,
+    "ast_hash": "fb6598f1604d9ee995b909c23c271f66",
+    "semantic_hash": "fb6598f1604d9ee995b909c23c271f66"
+  },
+  "postcss.config.js": {
+    "mtime": 1783942606.327266,
+    "seen": 1793059921.847161,
+    "ast_hash": "ef3ba2a81ba19f8ea5ddf625521e96f0",
+    "semantic_hash": "ef3ba2a81ba19f8ea5ddf625521e96f0"
+  },
+  "server/index.js": {
+    "mtime": 1788368653.4528718,
+    "seen": 1793059921.8471673,
+    "ast_hash": "8ee7ddb30bc841583f86f54ef8e041ac",
+    "semantic_hash": "8ee7ddb30bc841583f86f54ef8e041ac"
+  },
+  "server/package.json": {
+    "mtime": 1788368616.7743635,
+    "seen": 1793059921.8471718,
+    "ast_hash": "4bc3fe0d075a07e19bd13dc3bc5a477b",
+    "semantic_hash": "4bc3fe0d075a07e19bd13dc3bc5a477b"
+  },
+  "src/App.jsx": {
+    "mtime": 1788372567.9502995,
+    "seen": 1793059921.8471768,
+    "ast_hash": "a45ca460d9b6931094a63390669d099d",
+    "semantic_hash": "a45ca460d9b6931094a63390669d099d"
+  },
+  "src/components/GestureCamera.jsx": {
+    "mtime": 1788230951.214045,
+    "seen": 1793059921.8471813,
+    "ast_hash": "4bccde9a2400f8502e7d2bd936875219",
+    "semantic_hash": "4bccde9a2400f8502e7d2bd936875219"
+  },
+  "src/components/GestureIndicator.jsx": {
+    "mtime": 1788230845.208891,
+    "seen": 1793059921.847185,
+    "ast_hash": "e44a8914198cf0b89bbdbdecaa6dee59",
+    "semantic_hash": "e44a8914198cf0b89bbdbdecaa6dee59"
+  },
+  "src/components/GestureTutorial.jsx": {
+    "mtime": 1784702997.4199767,
+    "seen": 1793059921.847189,
+    "ast_hash": "b590dee45b86997a569ae3d0fa45be6c",
+    "semantic_hash": "b590dee45b86997a569ae3d0fa45be6c"
+  },
+  "src/components/SensorInstructionModal.jsx": {
+    "mtime": 1786775952.115698,
+    "seen": 1793059921.847193,
+    "ast_hash": "e1f18fb39bf6a8670afea81343d3ceba",
+    "semantic_hash": "e1f18fb39bf6a8670afea81343d3ceba"
+  },
+  "src/components/SensorMeasuring.jsx": {
+    "mtime": 1788369309.8275075,
+    "seen": 1793059921.8471982,
+    "ast_hash": "2fd02702aa1b1c5f568e19eb4dd556e3",
+    "semantic_hash": "2fd02702aa1b1c5f568e19eb4dd556e3"
+  },
+  "src/components/SensorResult.jsx": {
+    "mtime": 1788369352.931471,
+    "seen": 1793059921.8472025,
+    "ast_hash": "dff832cb7292f18cc0b990aad379f892",
+    "semantic_hash": "dff832cb7292f18cc0b990aad379f892"
+  },
+  "src/main.jsx": {
+    "mtime": 1783942020.72209,
+    "seen": 1793059921.8472068,
+    "ast_hash": "e13723e2574429d9a6d849727e3ff695",
+    "semantic_hash": "e13723e2574429d9a6d849727e3ff695"
+  },
+  "src/screens/AccountChoiceScreen.jsx": {
+    "mtime": 1786777938.0202038,
+    "seen": 1793059921.8472111,
+    "ast_hash": "0577cb5c582603cf06e84dba23bf0759",
+    "semantic_hash": "0577cb5c582603cf06e84dba23bf0759"
+  },
+  "src/screens/FinalScreen.jsx": {
+    "mtime": 1784537067.1600754,
+    "seen": 1793059921.847215,
+    "ast_hash": "7ffb13dffb0bb2fb79270d48d298a900",
+    "semantic_hash": "7ffb13dffb0bb2fb79270d48d298a900"
+  },
+  "src/screens/HealthCheckScreen.jsx": {
+    "mtime": 1788372585.3613312,
+    "seen": 1793059921.8472188,
+    "ast_hash": "513862510ef1bd9ed2e767c991e757e9",
+    "semantic_hash": "513862510ef1bd9ed2e767c991e757e9"
+  },
+  "src/screens/LandingScreen.jsx": {
+    "mtime": 1784701066.7905686,
+    "seen": 1793059921.8472228,
+    "ast_hash": "3ca42411838c409bb1443a17dc5f0bbf",
+    "semantic_hash": "3ca42411838c409bb1443a17dc5f0bbf"
+  },
+  "src/screens/ModeSelectionScreen.jsx": {
+    "mtime": 1784539066.939314,
+    "seen": 1793059921.8472273,
+    "ast_hash": "a8761e6261bc8ca214fbb3cfc5d45395",
+    "semantic_hash": "a8761e6261bc8ca214fbb3cfc5d45395"
+  },
+  "src/screens/SummaryScreen.jsx": {
+    "mtime": 1788369441.9334197,
+    "seen": 1793059921.8472314,
+    "ast_hash": "540f79077446f8cd13c8eae6bafeccfa",
+    "semantic_hash": "540f79077446f8cd13c8eae6bafeccfa"
+  },
+  "src/services/sensorService.js": {
+    "mtime": 1788396965.1592393,
+    "seen": 1793059921.8472357,
+    "ast_hash": "acc290bbcdb824c52c7fde03d4a48895",
+    "semantic_hash": "acc290bbcdb824c52c7fde03d4a48895"
+  },
+  "src/services/supabaseClient.js": {
+    "mtime": 1788170569.6763964,
+    "seen": 1793059921.8472397,
+    "ast_hash": "cdff84f97404b1a2b25e85b294378746",
+    "semantic_hash": "cdff84f97404b1a2b25e85b294378746"
+  },
+  "tailwind.config.js": {
+    "mtime": 1783942664.573127,
+    "seen": 1793059921.847247,
+    "ast_hash": "84eb1db031d6afb041f7bf7965667a6e",
+    "semantic_hash": "84eb1db031d6afb041f7bf7965667a6e"
+  },
+  "temp_index_repo.js": {
+    "mtime": 1793057730.2953858,
+    "seen": 1793059921.847251,
+    "ast_hash": "58e54440cefa773eb8ed757c600f81e0",
+    "semantic_hash": "58e54440cefa773eb8ed757c600f81e0"
+  },
+  "vite.config.js": {
+    "mtime": 1788369444.0559795,
+    "seen": 1793059921.8472552,
+    "ast_hash": "b69b15b0891e877b5b67d125377575f5",
+    "semantic_hash": "b69b15b0891e877b5b67d125377575f5"
+  },
+  "src/assets/tutorials/pointup.mp4": {
+    "mtime": 1784688780.7642815,
+    "seen": 1793059921.84726,
+    "ast_hash": "84bbbacd9f1b2a3cbcf8e844f0dffe7b",
+    "semantic_hash": "84bbbacd9f1b2a3cbcf8e844f0dffe7b"
+  },
+  "src/assets/tutorials/swipeleft.mp4": {
+    "mtime": 1784688043.323604,
+    "seen": 1793059921.8472645,
+    "ast_hash": "90cb5d4f789b84c5c050fdd857e4a780",
+    "semantic_hash": "90cb5d4f789b84c5c050fdd857e4a780"
+  },
+  "src/assets/tutorials/swiperight.mp4": {
+    "mtime": 1784688397.9564805,
+    "seen": 1793059921.8472686,
+    "ast_hash": "473d0938701954a2cf57b7f95ca412c5",
+    "semantic_hash": "473d0938701954a2cf57b7f95ca412c5"
+  },
+  "src/assets/tutorials/thumbsdown.mp4": {
+    "mtime": 1784688914.2320166,
+    "seen": 1793059921.8472722,
+    "ast_hash": "73751945e525bea5f264c55e5cc14ef7",
+    "semantic_hash": "73751945e525bea5f264c55e5cc14ef7"
+  },
+  "src/assets/tutorials/thumbsup.mp4": {
+    "mtime": 1784689429.3047037,
+    "seen": 1793059921.8472755,
+    "ast_hash": "382947f1fd847d822126b8786b43ddeb",
+    "semantic_hash": "382947f1fd847d822126b8786b43ddeb"
+  }
+}

@@ -1,8 +1,38 @@
-import React from 'react';
-import { Ruler, Weight, Thermometer, Activity, CheckCircle2, AlertCircle, HeartPulse } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Ruler, Weight, Thermometer, Activity, CheckCircle2, AlertCircle, HeartPulse, QrCode, X } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { formatSensorResult } from '../services/sensorService';
 
 export default function SummaryScreen({ measurements, onNext }) {
+
+  const [showQR, setShowQR] = useState(false);
+
+  // Build the VISTRA_VITALS JSON payload from current measurements
+  const qrPayload = useMemo(() => {
+    const payload = {
+      type: 'VISTRA_VITALS',
+      version: '1.0',
+      generatedAt: new Date().toISOString(),
+      measurements: {
+        height: measurements.height
+          ? { value: measurements.height.value, unit: measurements.height.unit }
+          : null,
+        weight: measurements.weight
+          ? { value: measurements.weight.value, unit: measurements.weight.unit }
+          : null,
+        temperature: measurements.temperature
+          ? { value: measurements.temperature.value, unit: measurements.temperature.unit }
+          : null,
+        heartRate: measurements.heartAndOxygen
+          ? { value: measurements.heartAndOxygen.heartRate, unit: 'bpm' }
+          : null,
+        spo2: measurements.heartAndOxygen
+          ? { value: measurements.heartAndOxygen.bloodOxygen, unit: '%' }
+          : null,
+      },
+    };
+    return JSON.stringify(payload);
+  }, [measurements]);
 
   // Helpers
   const heightVal = measurements.height?.value;
@@ -199,7 +229,14 @@ export default function SummaryScreen({ measurements, onNext }) {
         </div>
       </div>
 
-      <div className="mt-8 mb-4 flex justify-center shrink-0">
+      <div className="mt-8 mb-4 flex justify-center gap-4 shrink-0">
+        <button
+          onClick={() => setShowQR(true)}
+          className="flex items-center justify-center gap-3 px-10 py-6 bg-white hover:bg-slate-50 text-slate-700 text-2xl font-bold rounded-2xl shadow-lg border-2 border-slate-200 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <QrCode className="w-8 h-8 text-teal-600" />
+          Show QR Code
+        </button>
         <button
           onClick={onNext}
           className="flex items-center justify-center gap-3 px-16 py-6 bg-teal-600 hover:bg-teal-500 text-white text-2xl font-bold rounded-2xl shadow-xl shadow-teal-600/20 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
@@ -208,6 +245,47 @@ export default function SummaryScreen({ measurements, onNext }) {
           Complete Session
         </button>
       </div>
+
+      {/* QR Code Modal Overlay */}
+      {showQR && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm">
+          <div className="bg-white rounded-[2.5rem] p-12 shadow-2xl max-w-lg w-full flex flex-col items-center text-center relative">
+            <button
+              onClick={() => setShowQR(false)}
+              className="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors"
+            >
+              <X className="w-5 h-5 text-slate-500" />
+            </button>
+
+            <div className="flex items-center gap-2 mb-2">
+              <QrCode className="w-6 h-6 text-teal-600" />
+              <h3 className="text-2xl font-bold text-slate-800">Your Vital Signs</h3>
+            </div>
+            <p className="text-slate-500 mb-8">Scan this QR code to save your results on your phone.</p>
+
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+              <QRCodeSVG
+                value={qrPayload}
+                size={256}
+                level="M"
+                fgColor="#0f172a"
+                bgColor="#ffffff"
+              />
+            </div>
+
+            <p className="text-xs text-slate-400 mt-6 max-w-xs">
+              The QR code contains your measurement data as JSON text. No data is sent to any server.
+            </p>
+
+            <button
+              onClick={() => setShowQR(false)}
+              className="mt-8 px-10 py-4 bg-teal-600 hover:bg-teal-500 text-white text-lg font-bold rounded-2xl shadow-lg transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

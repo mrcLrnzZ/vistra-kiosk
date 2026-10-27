@@ -1,7 +1,35 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { CheckCircle2, Download, Home, Printer, QrCode } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
-export default function FinalScreen({ onRestart }) {
+export default function FinalScreen({ onRestart, measurements }) {
+  // Build the same VISTRA_VITALS JSON payload used in SummaryScreen
+  const qrPayload = useMemo(() => {
+    const m = measurements || {};
+    const payload = {
+      type: 'VISTRA_VITALS',
+      version: '1.0',
+      generatedAt: new Date().toISOString(),
+      measurements: {
+        height: m.height
+          ? { value: m.height.value, unit: m.height.unit }
+          : null,
+        weight: m.weight
+          ? { value: m.weight.value, unit: m.weight.unit }
+          : null,
+        temperature: m.temperature
+          ? { value: m.temperature.value, unit: m.temperature.unit }
+          : null,
+        heartRate: m.heartAndOxygen
+          ? { value: m.heartAndOxygen.heartRate, unit: 'bpm' }
+          : null,
+        spo2: m.heartAndOxygen
+          ? { value: m.heartAndOxygen.bloodOxygen, unit: '%' }
+          : null,
+      },
+    };
+    return JSON.stringify(payload);
+  }, [measurements]);
   return (
     <div className="flex flex-col items-center justify-center w-full h-full bg-teal-50 relative overflow-hidden p-8">
       {/* Background decorations */}
@@ -34,12 +62,13 @@ export default function FinalScreen({ onRestart }) {
             <span>Scan to save on phone</span>
           </div>
           <div className="w-48 h-48 bg-white p-2 rounded-xl shadow-sm border border-slate-200 flex items-center justify-center">
-            {/* Placeholder QR Code */}
-            <div className="grid grid-cols-5 grid-rows-5 gap-1 w-full h-full opacity-30">
-              {Array.from({ length: 25 }).map((_, i) => (
-                <div key={i} className={`bg-slate-800 ${Math.random() > 0.5 ? 'rounded-sm' : 'rounded-none'}`}></div>
-              ))}
-            </div>
+            <QRCodeSVG
+              value={qrPayload}
+              size={176}
+              level="M"
+              fgColor="#0f172a"
+              bgColor="#ffffff"
+            />
           </div>
         </div>
 

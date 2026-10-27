@@ -1,0 +1,17 @@
+﻿
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "context-mode": {
+      "type": "local",
+      "command": [
+        "node",
+        "C:/Users/Lrnzz/Documents/Projects/vistra-kiosk/node_modules/context-mode/cli.bundle.mjs"
+      ],
+      "environment": {
+        "OPENCODE": "1"
+      },
+      "enabled": true
+    }
+  }
+}
