@@ -7,6 +7,7 @@ import SummaryScreen from './screens/SummaryScreen'
 import FinalScreen from './screens/FinalScreen'
 import GestureIndicator from './components/GestureIndicator'
 import GestureCamera from './components/GestureCamera'
+import AmbientBackground from './components/AmbientBackground'
 import GestureTutorial from './components/GestureTutorial'
 // import AccountChoiceScreen from './screens/AccountChoiceScreen'
 
@@ -154,6 +155,7 @@ function App() {
   return (
     <div className="w-screen h-screen overflow-hidden font-sans bg-slate-900 text-slate-900 select-none">
       <GestureCamera onGesture={handleGesture} onStatusChange={setGestureStatus} />
+<AmbientBackground />
 
       {/* Progressive gesture tutorial */}
       {isTutorialActive && (
