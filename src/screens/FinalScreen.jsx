@@ -1,8 +1,27 @@
-import React, { useMemo } from 'react';
-import { CheckCircle2, Download, Home, Printer, QrCode } from 'lucide-react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { CheckCircle2, Home, QrCode } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function FinalScreen({ onRestart, measurements }) {
+  const [secondsLeft, setSecondsLeft] = useState(300);
+  const formatTime = (secs) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          onRestart();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
   // Build the same VISTRA_VITALS JSON payload used in SummaryScreen
   const qrPayload = useMemo(() => {
     const m = measurements || {};
@@ -44,22 +63,15 @@ export default function FinalScreen({ onRestart, measurements }) {
         <h2 className="text-6xl font-extrabold text-slate-800 mb-4">Health Check Complete</h2>
         <p className="text-2xl text-slate-500 mb-12">Your results have been securely processed.</p>
 
-        <div className="grid grid-cols-2 gap-6 w-full max-w-2xl mb-12">
-          <button className="flex items-center justify-center space-x-3 py-6 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-2xl font-bold text-xl border border-slate-200 transition-colors">
-            <Download className="w-6 h-6 text-teal-600" />
-            <span>Download Report</span>
-          </button>
-
-          <button className="flex items-center justify-center space-x-3 py-6 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-2xl font-bold text-xl border border-slate-200 transition-colors">
-            <Printer className="w-6 h-6 text-teal-600" />
-            <span>Print Result</span>
-          </button>
-        </div>
+        {/* Removed Download and Print buttons per spec */}
 
         <div className="flex flex-col items-center p-6 bg-slate-50 rounded-3xl border border-slate-200 mb-12 w-full max-w-sm">
           <div className="flex items-center space-x-2 mb-4 text-slate-600 font-medium">
             <QrCode className="w-5 h-5" />
-            <span>Scan to save on phone</span>
+            <span>Point Up to Return to Home</span>
+          </div>
+          <div className="text-center text-4xl font-bold text-slate-800 mb-4">
+            {formatTime(secondsLeft)}
           </div>
           <div className="w-48 h-48 bg-white p-2 rounded-xl shadow-sm border border-slate-200 flex items-center justify-center">
             <QRCodeSVG
