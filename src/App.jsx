@@ -8,7 +8,7 @@ import FinalScreen from './screens/FinalScreen'
 import GestureIndicator from './components/GestureIndicator'
 import GestureCamera from './components/GestureCamera'
 import GestureTutorial from './components/GestureTutorial'
-import AccountChoiceScreen from './screens/AccountChoiceScreen'
+// import AccountChoiceScreen from './screens/AccountChoiceScreen'
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('landing') // 'landing', 'modeSelection', 'healthCheck', 'summary', 'final'
@@ -90,7 +90,7 @@ function App() {
     setMeasurements({})
     resetSensorSession() // Clear sensorService cache (heartAndOxygen, weight bases)
     console.log('[App] New health-check session started — all vitals cleared')
-    setCurrentScreen('accountChoice')
+    setCurrentScreen('modeSelection')
   }
 
   const lastGestureTime = useRef(0);
@@ -175,12 +175,7 @@ function App() {
           />
         )}
 
-        {currentScreen === 'accountChoice' && (
-          <AccountChoiceScreen
-            onGuestContinue={() => setCurrentScreen('modeSelection')}
-            lastGesture={lastGesture}
-          />
-        )}
+        {/* Removed accountChoice screen – jump directly to mode selection */}
 
         {currentScreen === 'modeSelection' && (
           <ModeSelectionScreen
