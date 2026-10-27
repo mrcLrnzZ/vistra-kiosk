@@ -230,13 +230,7 @@ export default function SummaryScreen({ measurements, onNext }) {
       </div>
 
       <div className="mt-8 mb-4 flex justify-center gap-4 shrink-0">
-        <button
-          onClick={() => setShowQR(true)}
-          className="flex items-center justify-center gap-3 px-10 py-6 bg-white hover:bg-slate-50 text-slate-700 text-2xl font-bold rounded-2xl shadow-lg border-2 border-slate-200 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <QrCode className="w-8 h-8 text-teal-600" />
-          Show QR Code
-        </button>
+  
         <button
           onClick={onNext}
           className="flex items-center justify-center gap-3 px-16 py-6 bg-teal-600 hover:bg-teal-500 text-white text-2xl font-bold rounded-2xl shadow-xl shadow-teal-600/20 transition-all transform hover:scale-[1.02] active:scale-[0.98]"
