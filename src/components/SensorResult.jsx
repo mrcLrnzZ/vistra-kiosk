@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowUp, ThumbsUp, ThumbsDown, AlertTriangle, RotateCcw, CheckCircle2 } from 'lucide-react';
 import clsx from 'clsx';
-import { formatSensorResult, isRealSensor } from '../services/sensorService';
+import { formatSensorResult } from '../services/sensorService';
 
 /**
  * Full-screen result display with Measure Again / Continue / Back actions.
@@ -18,7 +18,6 @@ import { formatSensorResult, isRealSensor } from '../services/sensorService';
  */
 export default function SensorResult({ sensor, result, isError, errorMessage, onMeasureAgain, onContinue, onBack }) {
   const Icon = sensor.icon;
-  const isDummy = !isRealSensor(sensor.id);
 
   // ---- Error State ----
   if (isError) {
@@ -68,11 +67,9 @@ export default function SensorResult({ sensor, result, isError, errorMessage, on
           <div className={clsx('w-32 h-32 rounded-full flex items-center justify-center mb-6', sensor.bg)}>
             <Icon className={clsx('w-16 h-16', sensor.color)} />
           </div>
-          {!isDummy && (
-            <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center shadow-lg animate-[bounceIn_0.5s_ease-out]">
-              <CheckCircle2 className="w-6 h-6 text-white" />
-            </div>
-          )}
+          <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center shadow-lg animate-[bounceIn_0.5s_ease-out]">
+            <CheckCircle2 className="w-6 h-6 text-white" />
+          </div>
         </div>
 
         {/* Sensor label */}
@@ -83,20 +80,10 @@ export default function SensorResult({ sensor, result, isError, errorMessage, on
           {displayValue}
         </div>
 
-        {/* TEST DATA warning — only for dummy sensors */}
-        {isDummy && (
-          <div className="bg-amber-50 border border-amber-200 text-amber-700 px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider mb-10">
-            ⚠ Test Data — Simulated Reading
-          </div>
-        )}
-
-        {/* Real sensor success badge */}
-        {!isDummy && (
-          <div className="bg-teal-50 border border-teal-200 text-teal-700 px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider mb-10 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4" />
-            Live Sensor Reading
-          </div>
-        )}
+        <div className="bg-teal-50 border border-teal-200 text-teal-700 px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wider mb-10 flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4" />
+          Measurement Complete
+        </div>
 
         {/* Action buttons with gesture hints */}
         <div className="flex flex-col gap-4 w-full max-w-lg">

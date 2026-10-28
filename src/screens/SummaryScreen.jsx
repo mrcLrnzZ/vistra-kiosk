@@ -15,7 +15,7 @@ export default function SummaryScreen({ measurements, onNext }) {
       generatedAt: new Date().toISOString(),
       measurements: {
         height: measurements.height
-          ? { value: measurements.height.value, unit: measurements.height.unit }
+          ? { value: measurements.height.value, unit: 'ft', heightCm: measurements.height.heightCm }
           : null,
         weight: measurements.weight
           ? { value: measurements.weight.value, unit: measurements.weight.unit }
@@ -35,7 +35,7 @@ export default function SummaryScreen({ measurements, onNext }) {
   }, [measurements]);
 
   // Helpers
-  const heightVal = measurements.height?.value;
+  const heightVal = measurements.height?.heightCm;
   const weightVal = measurements.weight?.value;
 
   let bmi = 0;

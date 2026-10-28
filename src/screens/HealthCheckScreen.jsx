@@ -81,10 +81,27 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
           abortController.signal
         );
       } else {
-        // --- Dummy sensor (weight) ---
+        // --- Dummy sensor (weight / heartAndOxygen fallback) ---
         console.log(`[HealthCheck] Starting dummy sensor: ${activeSensor.id}`);
-        setLiveStatus('measuring');
-        setStatusMessage(getStatusMessage(activeSensor.id, 'measuring', 'measuring'));
+
+        if (activeSensor.id === 'heartAndOxygen') {
+          // Fake buffer: waiting → stabilizing → measuring → result
+          const steps = [
+            { state: 'waiting',     delay: 1500 },
+            { state: 'stabilizing', delay: 2000 },
+            { state: 'measuring',   delay: 2500 },
+          ];
+          for (const step of steps) {
+            if (abortController.signal.aborted) return;
+            setLiveStatus(step.state);
+            setStatusMessage(getStatusMessage(activeSensor.id, step.state, step.state));
+            await new Promise(r => setTimeout(r, step.delay));
+          }
+        } else {
+          setLiveStatus('measuring');
+          setStatusMessage(getStatusMessage(activeSensor.id, 'measuring', 'measuring'));
+        }
+
         result = await readSensor(activeSensor.id);
       }
 
@@ -97,6 +114,20 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
         return;
       }
 
+      if (activeSensor.id === 'heartAndOxygen') {
+        const bufferSteps = [
+          { state: 'stabilizing', delay: 1500 },
+          { state: 'measuring',   delay: 2000 },
+        ];
+        for (const step of bufferSteps) {
+          if (abortController.signal.aborted) return;
+          setLiveStatus(step.state);
+          setStatusMessage(getStatusMessage('heartAndOxygen', step.state, step.state));
+          await new Promise(r => setTimeout(r, step.delay));
+        }
+      }
+
+      if (abortController.signal.aborted) return;
       setSensorResult(result);
       setLiveStatus('success');
       setMeasurementState('result');

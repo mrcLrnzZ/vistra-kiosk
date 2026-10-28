@@ -226,13 +226,17 @@ export function getStatusMessage(sensorId, uiState, rawStatus) {
  */
 function normalizeResult(sensorId, arduinoData) {
   switch (sensorId) {
-    case 'height':
+    case 'height': {
+      const totalInches = arduinoData.height_cm / 2.54;
+      const feet = Math.floor(totalInches / 12);
+      const inches = Math.round(totalInches % 12);
       return {
-        value: arduinoData.height_cm,
-        unit: 'cm',
-        // Keep raw data for debugging
+        value: `${feet}'${inches}"`,
+        unit: '',
+        heightCm: arduinoData.height_cm,
         _raw: arduinoData,
       };
+    }
 
     case 'temperature':
       return {
@@ -423,6 +427,10 @@ function getOrCreateBase(sensorId) {
     case 'weight':
       base.value = randomBetween(65, 70);
       break;
+    case 'heartAndOxygen':
+      base.heartRate = randomBetween(68, 80);
+      base.bloodOxygen = randomBetween(96, 99);
+      break;
     default:
       return null;
   }
@@ -443,6 +451,11 @@ export function generateDummySensorData(sensorId) {
       return {
         value: Number(jitter(base.value, 0.5).toFixed(1)),
         unit: 'kg',
+      };
+    case 'heartAndOxygen':
+      return {
+        heartRate: Math.round(jitter(base.heartRate, 2)),
+        bloodOxygen: Math.round(jitter(base.bloodOxygen, 1)),
       };
     default:
       return null;
