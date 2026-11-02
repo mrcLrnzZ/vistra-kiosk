@@ -7,14 +7,15 @@
 let isMuted = false;
 let voiceReady = false;
 let preferredVoice = null;
+let currentLang = 'en-US';
 
 // Voice configuration constants
 const VOICE_CONFIG = {
   rate: 0.85,        // Slower for clarity
   pitch: 1.0,        // Natural pitch
   volume: 1.0,       // Full volume (controlled by mute)
-  lang: 'en-US',     // US English
-};
+  lang: 'en-US',     // US English (default, can be changed via setLanguage)
+}; 
 
 /**
  * Initialize the speech synthesis and select the best available voice.
@@ -81,7 +82,7 @@ export function speak(text, options = {}) {
     utterance.rate = options.rate ?? VOICE_CONFIG.rate;
     utterance.pitch = options.pitch ?? VOICE_CONFIG.pitch;
     utterance.volume = isMuted ? 0 : (options.volume ?? VOICE_CONFIG.volume);
-    utterance.lang = options.lang ?? VOICE_CONFIG.lang;
+    utterance.lang = options.lang ?? currentLang;
 
     if (preferredVoice) {
       utterance.voice = preferredVoice;
@@ -117,6 +118,25 @@ export function stop() {
  * @param {boolean} muted - Optional explicit mute state
  * @returns {boolean} New mute state
  */
+/**
+ * Set the voice language.
+ * @param {string} lang - Language code (e.g., 'en-US', 'es-ES', 'fr-FR')
+ */
+export function setLanguage(lang) {
+  if (typeof lang === 'string' && lang.length > 0) {
+    currentLang = lang;
+    console.log('[VoiceService] Language set to:', currentLang);
+  }
+}
+
+/**
+ * Get the current voice language.
+ * @returns {string}
+ */
+export function getLanguage() {
+  return currentLang;
+}
+
 export function setMuted(muted) {
   if (typeof muted === 'boolean') {
     isMuted = muted;

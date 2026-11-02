@@ -1,7 +1,8 @@
-import React from 'react';
-import { ArrowUp, ThumbsUp, ThumbsDown, AlertTriangle, RotateCcw, CheckCircle2 } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowUp, ThumbsUp, ThumbsDown, AlertTriangle, RotateCcw, CheckCircle2, Volume2, VolumeX } from 'lucide-react';
 import clsx from 'clsx';
 import { formatSensorResult } from '../services/sensorService';
+import { speak, setMuted, getMuted } from '../services/voiceService';
 
 /**
  * Full-screen result display with Measure Again / Continue / Back actions.
@@ -15,15 +16,51 @@ import { formatSensorResult } from '../services/sensorService';
  *   onMeasureAgain – restart the instruction workflow for the same sensor
  *   onContinue     – accept the result and proceed
  *   onBack         – return to the sensor selection menu
+ *   voiceInstruction – the voice instruction text for this sensor/state
  */
-export default function SensorResult({ sensor, result, isError, errorMessage, onMeasureAgain, onContinue, onBack }) {
+export default function SensorResult({ sensor, result, isError, errorMessage, onMeasureAgain, onContinue, onBack, voiceInstruction }) {
+  const [isMuted, setIsMutedState] = useState(() => getMuted());
   const Icon = sensor.icon;
+
+  // Handle mute toggle
+  const handleMuteToggle = () => {
+    const newMuted = setMuted(!isMuted);
+    setIsMutedState(newMuted);
+  };
+
+  // Handle replay
+  const handleReplay = async () => {
+    if (voiceInstruction) {
+      await speak(voiceInstruction);
+    }
+  };
 
   // ---- Error State ----
   if (isError) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm">
-        <div className="bg-white rounded-[2.5rem] p-16 shadow-2xl w-full max-w-2xl flex flex-col items-center text-center">
+        <div className="bg-white rounded-[2.5rem] p-16 shadow-2xl w-full max-w-2xl flex flex-col items-center text-center relative">
+
+          {/* Voice Controls */}
+          <div className="absolute top-6 right-8 flex items-center gap-2">
+            <button
+              onClick={handleReplay}
+              className="p-2 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500"
+              aria-label="Replay voice instruction"
+              title="Replay instruction"
+            >
+              <RotateCcw className="w-5 h-5" />
+            </button>
+            <button
+              onClick={handleMuteToggle}
+              className="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400"
+              aria-label={isMuted ? 'Unmute voice instructions' : 'Mute voice instructions'}
+              title={isMuted ? 'Unmute' : 'Mute'}
+            >
+              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            </button>
+          </div>
+
           <div className="w-32 h-32 rounded-full bg-red-50 flex items-center justify-center mb-8">
             <AlertTriangle className="w-16 h-16 text-red-500" />
           </div>
@@ -60,7 +97,27 @@ export default function SensorResult({ sensor, result, isError, errorMessage, on
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm">
-      <div className="bg-white rounded-[2.5rem] p-16 shadow-2xl w-full max-w-2xl flex flex-col items-center text-center">
+      <div className="bg-white rounded-[2.5rem] p-16 shadow-2xl w-full max-w-2xl flex flex-col items-center text-center relative">
+
+        {/* Voice Controls */}
+        <div className="absolute top-6 right-8 flex items-center gap-2">
+          <button
+            onClick={handleReplay}
+            className="p-2 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500"
+            aria-label="Replay voice instruction"
+            title="Replay instruction"
+          >
+            <RotateCcw className="w-5 h-5" />
+          </button>
+          <button
+            onClick={handleMuteToggle}
+            className="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400"
+            aria-label={isMuted ? 'Unmute voice instructions' : 'Mute voice instructions'}
+            title={isMuted ? 'Unmute' : 'Mute'}
+          >
+            {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+          </button>
+        </div>
 
         {/* Sensor icon with success check overlay */}
         <div className="relative">

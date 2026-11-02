@@ -1,7 +1,8 @@
-import React from 'react';
-import { ArrowUp, ThumbsDown } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowUp, ThumbsDown, Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import clsx from 'clsx';
 import { SENSOR_INSTRUCTIONS } from '../services/sensorService';
+import { speak, setMuted, getMuted } from '../services/voiceService';
 
 /**
  * Reusable instruction modal for all sensors.
@@ -11,12 +12,29 @@ import { SENSOR_INSTRUCTIONS } from '../services/sensorService';
  *   sensor       – object from the SENSORS array ({ id, label, icon, color, bg })
  *   onReady      – called when user is ready (Point Up gesture or button)
  *   onCancel     – called when user cancels (Thumbs Down gesture or button)
+ *   voiceInstruction – the voice instruction text for this sensor
  */
-export default function SensorInstructionModal({ sensor, onReady, onCancel }) {
+export default function SensorInstructionModal({ sensor, onReady, onCancel, voiceInstruction }) {
   const instructions = SENSOR_INSTRUCTIONS[sensor.id];
-  if (!instructions) return null;
+
+  const [isMuted, setIsMutedState] = useState(() => getMuted());
 
   const Icon = sensor.icon;
+
+  if (!instructions) return null;
+
+  // Handle mute toggle
+  const handleMuteToggle = () => {
+    const newMuted = setMuted(!isMuted);
+    setIsMutedState(newMuted);
+  };
+
+  // Handle replay
+  const handleReplay = async () => {
+    if (voiceInstruction) {
+      await speak(voiceInstruction);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm">
@@ -24,6 +42,26 @@ export default function SensorInstructionModal({ sensor, onReady, onCancel }) {
 
         {/* Header band with sensor color */}
         <div className={clsx('w-full py-8 flex flex-col items-center', sensor.bg)}>
+          {/* Voice Controls */}
+          <div className="absolute top-6 right-8 flex items-center gap-2">
+            <button
+              onClick={handleReplay}
+              className="p-2 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500"
+              aria-label="Replay voice instruction"
+              title="Replay instruction"
+            >
+              <RotateCcw className="w-5 h-5" />
+            </button>
+            <button
+              onClick={handleMuteToggle}
+              className="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400"
+              aria-label={isMuted ? 'Unmute voice instructions' : 'Mute voice instructions'}
+              title={isMuted ? 'Unmute' : 'Mute'}
+            >
+              {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+            </button>
+          </div>
+
           <div className={clsx('w-28 h-28 rounded-full bg-white/80 flex items-center justify-center mb-4 shadow-lg')}>
             <Icon className={clsx('w-14 h-14', sensor.color)} />
           </div>

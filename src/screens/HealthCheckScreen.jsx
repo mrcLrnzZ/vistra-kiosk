@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Ruler, Weight, Thermometer, Activity, Wind, HeartPulse, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Ruler, Weight, Thermometer, Activity, CheckCircle2 } from 'lucide-react';
 import clsx from 'clsx';
 import SensorInstructionModal from '../components/SensorInstructionModal';
 import SensorMeasuring from '../components/SensorMeasuring';
 import SensorResult from '../components/SensorResult';
-import { readSensor, streamSensor, formatSensorResult, isRealSensor, getStatusMessage, getCachedResult, clearSensorCache } from '../services/sensorService';
+import { readSensor, streamSensor, formatSensorResult, isRealSensor, getStatusMessage, clearSensorCache } from '../services/sensorService';
+import { speak, stop } from '../services/voiceService';
 
 const SENSORS = [
   { id: 'height', label: 'Height', icon: Ruler, description: 'Measure your height automatically.', btnText: 'Measure Height', color: 'text-blue-500', bg: 'bg-blue-50' },
@@ -12,6 +13,33 @@ const SENSORS = [
   { id: 'temperature', label: 'Hand Skin Temperature', icon: Thermometer, description: 'Non-contact hand temperature scan.', btnText: 'Scan Temperature', color: 'text-orange-500', bg: 'bg-orange-50' },
   { id: 'heartAndOxygen', label: 'Heart Rate & SpO₂', icon: Activity, description: 'Measure pulse rate and oxygen saturation.', btnText: 'Measure Vitals', color: 'text-rose-500', bg: 'bg-rose-50' },
 ];
+
+// Voice instruction mapping for each sensor and state
+const VOICE_INSTRUCTIONS = {
+  height: {
+    instructions: "Please stand straight on the platform. Keep your feet together and look forward. Please remain still while your height is being measured.",
+    complete: "Height measurement complete. Please wait while your results are being processed.",
+    error: "Height measurement failed. Please try again.",
+  },
+  weight: {
+    instructions: "Please remain standing on the weighing platform. Keep your body still while your weight is being measured.",
+    complete: "Weight measurement complete. Please wait while your results are being processed.",
+    error: "Weight measurement failed. Please try again.",
+  },
+  temperature: {
+    instructions: "Please place your hand in front of the temperature sensor. Keep your hand still while your temperature is being measured.",
+    complete: "Temperature measurement complete. Please wait while your results are being processed.",
+    error: "Temperature measurement failed. Please try again.",
+  },
+  heartAndOxygen: {
+    instructions: "Please gently place your index finger on the heart rate and oxygen sensor. Keep your finger still while your readings are being measured.",
+    complete: "Heart rate and oxygen measurement complete. Please wait while your results are being processed.",
+    error: "Heart rate and oxygen measurement failed. Please try again.",
+  },
+};
+
+// Final completion message when all sensors are done
+const ALL_COMPLETE_VOICE = "Your vital sign measurements are complete. Please wait while your results are being processed.";
 
 export default function HealthCheckScreen({ mode, measurements, setMeasurements, onComplete, onBack, lastGesture }) {
   // --- State ---
@@ -26,6 +54,10 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
   // Live status from Arduino streaming
   const [liveStatus, setLiveStatus] = useState(null);       // 'waiting' | 'stabilizing' | 'measuring' | 'retrying'
   const [statusMessage, setStatusMessage] = useState(null);  // { title, subtitle }
+
+  // --- Voice Instruction State ---
+  const voicePlayedRef = useRef({ instructions: null, result: null, error: null, allComplete: false });
+  const lastActiveSensorRef = useRef(null);
 
   const isAuto = mode === 'auto';
   const completedCount = SENSORS.filter(s => measurements[s.id] !== undefined).length;
@@ -64,7 +96,7 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
         result = await streamSensor(
           activeSensor.id,
           // onStatus callback — update live UI state
-          (uiState, msg, rawData) => {
+          (uiState, msg) => {
             // If aborted, ignore updates
             if (abortController.signal.aborted) return;
 
@@ -260,6 +292,72 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
     }
   }, [isAuto, measurementState, activeSensor, sensorResult, handleContinue]);
 
+  // --- Voice Instruction Playback ---
+  
+  // Reset voice tracking when active sensor changes
+  useEffect(() => {
+    if (activeSensor !== lastActiveSensorRef.current) {
+      lastActiveSensorRef.current = activeSensor;
+      voicePlayedRef.current = { instructions: null, result: null, error: null, allComplete: false };
+    }
+  }, [activeSensor]);
+
+  // Play instructions when entering 'instructions' state
+  useEffect(() => {
+    if (measurementState === 'instructions' && activeSensor) {
+      const sensorId = activeSensor.id;
+      const instruction = VOICE_INSTRUCTIONS[sensorId]?.instructions;
+      
+      if (instruction && voicePlayedRef.current.instructions !== sensorId) {
+        voicePlayedRef.current.instructions = sensorId;
+        speak(instruction);
+      }
+    }
+  }, [measurementState, activeSensor]);
+
+  // Play completion message when entering 'result' state
+  useEffect(() => {
+    if (measurementState === 'result' && activeSensor && sensorResult) {
+      const sensorId = activeSensor.id;
+      const completeInstruction = VOICE_INSTRUCTIONS[sensorId]?.complete;
+      
+      // Play sensor-specific completion
+      if (completeInstruction && voicePlayedRef.current.result !== sensorId) {
+        voicePlayedRef.current.result = sensorId;
+        speak(completeInstruction);
+      }
+      
+      // Check if all sensors are complete (final screen transition)
+      if (allCompleted && !voicePlayedRef.current.allComplete) {
+        voicePlayedRef.current.allComplete = true;
+        // Play final completion message after a short delay to avoid overlap
+        setTimeout(() => {
+          speak(ALL_COMPLETE_VOICE);
+        }, 2000);
+      }
+    }
+  }, [measurementState, activeSensor, sensorResult, allCompleted]);
+
+  // Play error message when entering 'error' state
+  useEffect(() => {
+    if (measurementState === 'error' && activeSensor) {
+      const sensorId = activeSensor.id;
+      const errorInstruction = VOICE_INSTRUCTIONS[sensorId]?.error;
+      
+      if (errorInstruction && voicePlayedRef.current.error !== sensorId) {
+        voicePlayedRef.current.error = sensorId;
+        speak(errorInstruction);
+      }
+    }
+  }, [measurementState, activeSensor]);
+
+  // Cleanup voice on unmount
+  useEffect(() => {
+    return () => {
+      stop();
+    };
+  }, []);
+
   // --- Gesture handling ---
   useEffect(() => {
     if (!lastGesture || lastGesture.timestamp <= lastProcessedTime.current) return;
@@ -453,6 +551,7 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
           sensor={activeSensor}
           onReady={handleReady}
           onCancel={handleCancel}
+          voiceInstruction={VOICE_INSTRUCTIONS[activeSensor.id]?.instructions}
         />
       )}
 
@@ -473,6 +572,11 @@ export default function HealthCheckScreen({ mode, measurements, setMeasurements,
           onMeasureAgain={handleMeasureAgain}
           onContinue={handleContinue}
           onBack={handleBackToSensors}
+          voiceInstruction={
+            measurementState === 'error'
+              ? VOICE_INSTRUCTIONS[activeSensor.id]?.error
+              : VOICE_INSTRUCTIONS[activeSensor.id]?.complete
+          }
         />
       )}
     </div>
