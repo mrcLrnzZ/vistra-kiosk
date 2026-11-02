@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { resetSensorSession } from './services/sensorService'
+import { initVoiceService } from './services/voiceService'
 import LandingScreen from './screens/LandingScreen'
 import ModeSelectionScreen from './screens/ModeSelectionScreen'
 import HealthCheckScreen from './screens/HealthCheckScreen'
@@ -12,6 +13,11 @@ import GestureTutorial from './components/GestureTutorial'
 // import AccountChoiceScreen from './screens/AccountChoiceScreen'
 
 function App() {
+  // Initialize voice service on first render
+  useEffect(() => {
+    initVoiceService();
+  }, []);
+
   const [currentScreen, setCurrentScreen] = useState('landing') // 'landing', 'modeSelection', 'healthCheck', 'summary', 'final'
   const [measurementMode, setMeasurementMode] = useState('manual') // 'auto' or 'manual'
   const [measurements, setMeasurements] = useState({})

@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Volume2, VolumeX, RotateCcw } from 'lucide-react';
 import './GestureTutorial.css';
+import { speak, stop, setMuted, getMuted } from '../services/voiceService';
 
 // Import tutorial videos
 import swipeleftVideo from '../assets/tutorials/swipeleft.mp4';
@@ -17,6 +19,7 @@ const STEPS = [
       <>Swipe your open hand from <strong className="text-slate-800">right to left</strong> to move to the previous option.</>
     ),
     video: swipeleftVideo,
+    voiceInstruction: "To go back to the previous option, swipe your open hand from right to left. Keep your hand steady and within the camera view.",
   },
   {
     gesture: 'Next',
@@ -26,6 +29,7 @@ const STEPS = [
       <>Swipe your open hand from <strong className="text-slate-800">left to right</strong> to move to the next option.</>
     ),
     video: swiperightVideo,
+    voiceInstruction: "To move to the next option, swipe your open hand from left to right. Hold your hand steady until the selection changes.",
   },
   {
     gesture: 'Continue',
@@ -35,6 +39,7 @@ const STEPS = [
       <>Point your index finger upward to continue to the next screen or proceed with the current action.</>
     ),
     video: pointupVideo,
+    voiceInstruction: "To continue to the next screen, point your index finger upward. Hold your gesture until the screen changes.",
   },
   {
     gesture: 'Back',
@@ -44,6 +49,7 @@ const STEPS = [
       <>Use a <strong className="text-slate-800">Thumbs Down</strong> gesture to go back or cancel the current action.</>
     ),
     video: thumbsdownVideo,
+    voiceInstruction: "To go back or cancel, make a thumbs down gesture. Keep your hand visible to the camera until the action is confirmed.",
   },
   {
     gesture: 'Select',
@@ -53,6 +59,7 @@ const STEPS = [
       <>Use a <strong className="text-slate-800">Thumbs Up</strong> gesture to select or confirm the highlighted option.</>
     ),
     video: thumbsupVideo,
+    voiceInstruction: "To select an option, show your thumbs up gesture in front of the camera. Hold your gesture until your selection is confirmed.",
   },
 ];
 
@@ -77,6 +84,64 @@ export default function GestureTutorial({ lastGesture, onComplete, onTimeout }) 
   const inactivityTimerRef = useRef(null);
   const countdownIntervalRef = useRef(null);
   const isClosingRef = useRef(false); // guards against double-close
+
+  // ---------- Voice Instructions ----------
+  
+  // Track if voice has been played for the current step/intro to prevent duplicate playback
+  const voicePlayedRef = useRef({ intro: false, step: -1 });
+  const [isMuted, setIsMuted] = useState(() => getMuted());
+
+  // Voice instruction for the intro screen
+  const INTRO_VOICE_INSTRUCTION = "Welcome to the gesture navigation tutorial. Follow the hand gestures shown on screen to learn how to navigate the kiosk. Please position your hand clearly within the camera view. Keep your hand steady and avoid covering the camera.";
+
+  // Speak the instruction for the current step or intro
+  const playVoiceInstruction = useCallback(async () => {
+    if (isClosingRef.current) return;
+    
+    if (showIntro) {
+      if (!voicePlayedRef.current.intro) {
+        voicePlayedRef.current.intro = true;
+        await speak(INTRO_VOICE_INSTRUCTION);
+      }
+    } else {
+      const step = STEPS[currentStep];
+      if (step?.voiceInstruction && voicePlayedRef.current.step !== currentStep) {
+        voicePlayedRef.current.step = currentStep;
+        await speak(step.voiceInstruction);
+      }
+    }
+  }, [showIntro, currentStep]);
+
+  // Reset voice played flags when step changes or intro state changes
+  useEffect(() => {
+    voicePlayedRef.current = { intro: false, step: -1 };
+    playVoiceInstruction();
+  }, [playVoiceInstruction]);
+
+  // Cleanup voice on unmount
+  useEffect(() => {
+    return () => {
+      stop();
+    };
+  }, []);
+
+  // Handle mute toggle
+  const handleMuteToggle = useCallback(() => {
+    const newMuted = setMuted(!isMuted);
+    setIsMuted(newMuted);
+  }, [isMuted]);
+
+  // Handle replay button click
+  const handleReplay = useCallback(async () => {
+    if (showIntro) {
+      await speak(INTRO_VOICE_INSTRUCTION);
+    } else {
+      const step = STEPS[currentStep];
+      if (step?.voiceInstruction) {
+        await speak(step.voiceInstruction);
+      }
+    }
+  }, [showIntro, currentStep]);
 
   // ---------- Inactivity Timer ----------
 
@@ -238,6 +303,26 @@ export default function GestureTutorial({ lastGesture, onComplete, onTimeout }) 
 
           {showIntro ? (
             <div className="flex flex-col items-center justify-center py-24 px-10 text-center tutorial-step-enter min-h-[480px]">
+              {/* Voice controls for intro screen */}
+              <div className="absolute top-6 right-8 flex items-center gap-2">
+                <button
+                  onClick={handleReplay}
+                  className="p-2 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  aria-label="Replay voice instruction"
+                  title="Replay instruction"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={handleMuteToggle}
+                  className="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400"
+                  aria-label={isMuted ? 'Unmute voice instructions' : 'Mute voice instructions'}
+                  title={isMuted ? 'Unmute' : 'Mute'}
+                >
+                  {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                </button>
+              </div>
+
               <h2 className="text-4xl font-extrabold text-teal-600 tracking-tight mb-4">
                 Gesture Navigation Tutorial
               </h2>
@@ -268,7 +353,30 @@ export default function GestureTutorial({ lastGesture, onComplete, onTimeout }) 
               <h2 className="text-lg font-bold text-teal-600 uppercase tracking-[0.2em]">
                 Gesture Tutorial
               </h2>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                {/* Voice Controls */}
+                {!isCompleted && (
+                  <div className="flex items-center gap-1.5">
+                    {/* Replay Button */}
+                    <button
+                      onClick={handleReplay}
+                      className="p-2 rounded-lg bg-teal-50 text-teal-700 hover:bg-teal-100 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      aria-label="Replay voice instruction"
+                      title="Replay instruction"
+                    >
+                      <RotateCcw className="w-5 h-5" />
+                    </button>
+                    {/* Mute Toggle */}
+                    <button
+                      onClick={handleMuteToggle}
+                      className="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400"
+                      aria-label={isMuted ? 'Unmute voice instructions' : 'Mute voice instructions'}
+                      title={isMuted ? 'Unmute' : 'Mute'}
+                    >
+                      {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                    </button>
+                  </div>
+                )}
                 {/* Countdown seconds */}
                 {stepStatus === 'waiting' && !isCompleted && (
                   <span
