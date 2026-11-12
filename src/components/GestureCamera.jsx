@@ -44,13 +44,10 @@ export default function GestureCamera({ onGesture, onStatusChange }) {
 
     const initializeGestureRecognizer = async () => {
       try {
-        const vision = await FilesetResolver.forVisionTasks(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3/wasm"
-        );
+        const vision = await FilesetResolver.forVisionTasks("/mediapipe/wasm");
         const recognizer = await GestureRecognizer.createFromOptions(vision, {
           baseOptions: {
-            modelAssetPath:
-              "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task",
+            modelAssetPath: "/models/gesture_recognizer.task",
             delegate: "GPU"
           },
           runningMode: "VIDEO",
